@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pokedex/navigations/navigation.dart';
 
 class PokeContainer extends StatelessWidget {
   const PokeContainer({
@@ -52,7 +53,7 @@ class PokeContainer extends StatelessWidget {
                     children: <Widget>[
                       InkWell(
                         child: Icon(Icons.arrow_back),
-                        onTap: Navigator.of(context).pop,
+                        onTap: AppNavigation.instance().pop,
                       ),
                       Icon(Icons.menu),
                     ],

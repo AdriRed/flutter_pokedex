@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pokedex/navigations/navigation.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/pokemons.dart';
@@ -28,7 +29,8 @@ class _PokedexState extends State<Pokedex> with SingleTickerProviderStateMixin {
       duration: Duration(milliseconds: 260),
     );
 
-    final curvedAnimation = CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
+    final curvedAnimation =
+        CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
 
     super.initState();
@@ -112,7 +114,7 @@ class _PokedexState extends State<Pokedex> with SingleTickerProviderStateMixin {
                       index: index,
                       onPress: () {
                         pokemonModel.setSelectedIndex(index);
-                        Navigator.of(context).pushNamed("/pokemon-info");
+                        AppNavigation.instance().push(Routes.pokemonInfo);
                       },
                     ),
                   ),

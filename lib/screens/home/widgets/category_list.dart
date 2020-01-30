@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:pokedex/navigations/navigation.dart';
 
 import '../../../data/categories.dart';
 import '../../../widgets/poke_category_card.dart';
@@ -19,7 +20,7 @@ class CategoryList extends StatelessWidget {
       itemCount: categories.length,
       itemBuilder: (context, index) => PokeCategoryCard(
         categories[index],
-        onPress: () => Navigator.of(context).pushNamed("/pokedex"),
+        onPress: () => AppNavigation.instance().push(Routes.pokedex),
       ),
     );
   }
