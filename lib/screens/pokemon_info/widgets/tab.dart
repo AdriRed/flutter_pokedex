@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../configs/AppColors.dart';
+import '../pokemon_info.dart';
 import 'tab_about.dart';
 import 'tab_base_stats.dart';
 import 'tab_evolution.dart';
@@ -50,7 +50,7 @@ class PokemonTabInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final scrollController = Provider.of<AnimationController>(context);
+    final scrollController = PokemonCardController.of(context).controller;
     return DefaultTabController(
       length: 4,
       initialIndex: 0,
@@ -69,7 +69,8 @@ class PokemonTabInfo extends StatelessWidget {
           children: <Widget>[
             AnimatedBuilder(
               animation: scrollController,
-              builder: (context, _) => SizedBox(height: (1 - scrollController.value) * 16 + 6),
+              builder: (context, _) =>
+                  SizedBox(height: (1 - scrollController.value) * 16 + 6),
             ),
             _buildTabBar(),
             _buildTabContent(),

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../configs/AppColors.dart';
 import '../../../models/pokemon.dart';
@@ -60,7 +59,10 @@ class PokemonBaseStats extends StatefulWidget {
   _PokemonBaseStatsState createState() => _PokemonBaseStatsState();
 }
 
-class _PokemonBaseStatsState extends State<PokemonBaseStats> with SingleTickerProviderStateMixin {
+class _PokemonBaseStatsState extends State<PokemonBaseStats>
+    with SingleTickerProviderStateMixin {
+  final _pokemonBloc = PokemonBloc.instance();
+
   Animation<double> _animation;
   AnimationController _controller;
 
@@ -98,9 +100,15 @@ class _PokemonBaseStatsState extends State<PokemonBaseStats> with SingleTickerPr
       SizedBox(height: 14),
       Stat(animation: _animation, label: "Defense", value: pokemon.defense),
       SizedBox(height: 14),
-      Stat(animation: _animation, label: "Sp. Atk", value: pokemon.specialAttack),
+      Stat(
+          animation: _animation,
+          label: "Sp. Atk",
+          value: pokemon.specialAttack),
       SizedBox(height: 14),
-      Stat(animation: _animation, label: "Sp. Def", value: pokemon.specialDefense),
+      Stat(
+          animation: _animation,
+          label: "Sp. Def",
+          value: pokemon.specialDefense),
       SizedBox(height: 14),
       Stat(animation: _animation, label: "Speed", value: pokemon.speed),
       SizedBox(height: 14),
@@ -116,28 +124,37 @@ class _PokemonBaseStatsState extends State<PokemonBaseStats> with SingleTickerPr
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(24),
-      child: Consumer<PokemonModel>(
-        builder: (_, model, child) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            ...generateStatWidget(model.pokemon),
-            SizedBox(height: 27),
-            Text(
-              "Type defenses",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                height: 0.8,
+      child: StreamBuilder(
+        stream: _pokemonBloc.currentPokemonStream,
+        builder: (_, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          final pokemon = snapshot.data;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              ...generateStatWidget(pokemon),
+              SizedBox(height: 27),
+              Text(
+                "Type defenses",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  height: 0.8,
+                ),
               ),
-            ),
-            SizedBox(height: 15),
-            Text(
-              "The effectiveness of each type on ${model.pokemon.name}.",
-              style: TextStyle(color: AppColors.black.withOpacity(0.6)),
-            ),
-          ],
-        ),
+              SizedBox(height: 15),
+              Text(
+                "The effectiveness of each type on ${pokemon.name}.",
+                style: TextStyle(color: AppColors.black.withOpacity(0.6)),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

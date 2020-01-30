@@ -1,7 +1,6 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:pokedex/locator.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../data/pokemons.dart';
 
@@ -57,8 +56,10 @@ class Pokemon {
         baseExp = json['base_exp'],
         evolvedFrom = json['evolvedfrom'],
         reason = json['reason'],
-        evolutions =
-            json['evolutions'].map((id) => Pokemon(id: id as String)).cast<Pokemon>().toList();
+        evolutions = json['evolutions']
+            .map((id) => Pokemon(id: id as String))
+            .cast<Pokemon>()
+            .toList();
 
   final String about;
   final int attack;
@@ -88,31 +89,33 @@ class Pokemon {
   Color get color => getPokemonColor(types[0]);
 }
 
-class PokemonModel extends ChangeNotifier {
-  final List<Pokemon> _pokemons = [];
-  int _selectedIndex = 0;
+class PokemonBloc {
+  final _pokemonSubject = BehaviorSubject<Pokemon>.seeded(null);
+  final _pokemonsSubject = BehaviorSubject<List<Pokemon>>.seeded([]);
 
-  UnmodifiableListView<Pokemon> get pokemons => UnmodifiableListView(_pokemons);
+  PokemonBloc();
+  factory PokemonBloc.instance() => locator<PokemonBloc>();
 
-  bool get hasData => _pokemons.length > 0;
-
-  Pokemon get pokemon => _pokemons[_selectedIndex];
-
-  int get index => _selectedIndex;
-
-  static PokemonModel of(BuildContext context, {bool listen = false}) =>
-      Provider.of<PokemonModel>(context, listen: listen);
-
-  void setPokemons(List<Pokemon> pokemons) {
-    _pokemons.clear();
-    _pokemons.addAll(pokemons);
-
-    notifyListeners();
+  void dispose() {
+    _pokemonSubject.close();
+    _pokemonsSubject.close();
   }
 
-  void setSelectedIndex(int index) {
-    _selectedIndex = index;
+  // streams
+  Stream<List<Pokemon>> get pokemonsStream => _pokemonsSubject.stream;
+  Stream<Pokemon> get currentPokemonStream => _pokemonSubject.stream;
 
-    notifyListeners();
+  // latest values
+  List<Pokemon> get pokemons => _pokemonsSubject.value;
+  Pokemon get currentPokemon => _pokemonSubject.value;
+  int get currentPokemonIndex => pokemons.indexOf(currentPokemon);
+  bool get hasPokemons => pokemons.isNotEmpty;
+
+  void setPokemons(List<Pokemon> pokemons) {
+    _pokemonsSubject.add(pokemons);
+  }
+
+  void setCurrentPokemon(Pokemon pokemon) {
+    _pokemonSubject.add(pokemon);
   }
 }

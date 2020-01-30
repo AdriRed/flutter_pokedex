@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pokedex/locator.dart';
-import 'package:pokedex/models/pokemon.dart';
-import 'package:provider/provider.dart';
 
 import 'configs/AppColors.dart';
 import 'navigations/navigation.dart';
@@ -9,15 +7,7 @@ import 'navigations/navigation.dart';
 void main() {
   setupLocator();
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(builder: (context) => PokemonModel()),
-        // ... other provider(s)
-      ],
-      child: MyApp(),
-    ),
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

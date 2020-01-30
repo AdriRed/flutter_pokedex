@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pokedex/navigations/navigation.dart';
-import 'package:provider/provider.dart';
 
 import '../../data/pokemons.dart';
 import '../../models/pokemon.dart';
@@ -19,6 +18,8 @@ class Pokedex extends StatefulWidget {
 }
 
 class _PokedexState extends State<Pokedex> with SingleTickerProviderStateMixin {
+  final _pokemonBloc = PokemonBloc.instance();
+
   Animation<double> _animation;
   AnimationController _animationController;
 
@@ -38,10 +39,8 @@ class _PokedexState extends State<Pokedex> with SingleTickerProviderStateMixin {
 
   @override
   void didChangeDependencies() {
-    PokemonModel pokemonModel = PokemonModel.of(context, listen: true);
-
-    if (!pokemonModel.hasData) {
-      getPokemonsList(context).then(pokemonModel.setPokemons);
+    if (!_pokemonBloc.hasPokemons) {
+      getPokemonsList(context).then(_pokemonBloc.setPokemons);
     }
 
     super.didChangeDependencies();
@@ -97,28 +96,37 @@ class _PokedexState extends State<Pokedex> with SingleTickerProviderStateMixin {
                 ),
               ),
               SizedBox(height: 32),
-              Consumer<PokemonModel>(
-                builder: (context, pokemonModel, child) => Expanded(
-                  child: GridView.builder(
-                    physics: BouncingScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 1.4,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
+              StreamBuilder(
+                stream: _pokemonBloc.pokemonsStream,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  final pokemons = snapshot.data;
+
+                  return Expanded(
+                    child: GridView.builder(
+                      physics: BouncingScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 1.4,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                      ),
+                      padding: EdgeInsets.only(left: 28, right: 28, bottom: 58),
+                      itemCount: pokemons.length,
+                      itemBuilder: (context, index) => PokemonCard(
+                        pokemons[index],
+                        index: index,
+                        onPress: () {
+                          _pokemonBloc.setCurrentPokemon(pokemons[index]);
+                          AppNavigation.instance().push(Routes.pokemonInfo);
+                        },
+                      ),
                     ),
-                    padding: EdgeInsets.only(left: 28, right: 28, bottom: 58),
-                    itemCount: pokemonModel.pokemons.length,
-                    itemBuilder: (context, index) => PokemonCard(
-                      pokemonModel.pokemons[index],
-                      index: index,
-                      onPress: () {
-                        pokemonModel.setSelectedIndex(index);
-                        AppNavigation.instance().push(Routes.pokemonInfo);
-                      },
-                    ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),

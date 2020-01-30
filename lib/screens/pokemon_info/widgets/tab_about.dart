@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
 
 import '../../../configs/AppColors.dart';
 import '../../../models/pokemon.dart';
+import '../pokemon_info.dart';
 
 class PokemonAbout extends StatelessWidget {
+  final _pokemonBloc = PokemonBloc.instance();
+
   Widget _buildSection(String text, {List<Widget> children, Widget child}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
           text,
-          style: TextStyle(fontSize: 16, height: 0.8, fontWeight: FontWeight.bold),
+          style:
+              TextStyle(fontSize: 16, height: 0.8, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 22),
         if (child != null) child,
@@ -99,7 +102,8 @@ class PokemonAbout extends StatelessWidget {
               flex: 2,
               child: Row(
                 children: <Widget>[
-                  Image.asset("assets/images/female.png", width: 12, height: 12),
+                  Image.asset("assets/images/female.png",
+                      width: 12, height: 12),
                   SizedBox(width: 4),
                   Text(pokemon.femalePercentage, style: TextStyle(height: 0.8)),
                 ],
@@ -119,7 +123,9 @@ class PokemonAbout extends StatelessWidget {
       Row(
         children: <Widget>[
           Expanded(child: _buildLabel("Egg Groups")),
-          Expanded(flex: 3, child: Text(pokemon.eggGroups, style: TextStyle(height: 0.8))),
+          Expanded(
+              flex: 3,
+              child: Text(pokemon.eggGroups, style: TextStyle(height: 0.8))),
           //Expanded(flex: 2, child: SizedBox()),
         ],
       ),
@@ -163,31 +169,42 @@ class PokemonAbout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardController = Provider.of<AnimationController>(context);
+    final cardController = PokemonCardController.of(context).controller;
 
     return AnimatedBuilder(
       animation: cardController,
-      child: Consumer<PokemonModel>(
-        builder: (_, model, child) => Column(
-          children: <Widget>[
-            _buildDescription(model.pokemon.about),
-            SizedBox(height: 28),
-            _buildHeightWeight(model.pokemon.height, model.pokemon.weight),
-            SizedBox(height: 31),
-            _buildBreeding(model.pokemon),
-            SizedBox(height: 35),
-            _buildLocation(),
-            SizedBox(height: 26),
-            _buildTraining(model.pokemon.baseExp),
-          ],
-        ),
+      child: StreamBuilder(
+        stream: _pokemonBloc.currentPokemonStream,
+        builder: (_, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          final pokemon = snapshot.data;
+
+          return Column(
+            children: <Widget>[
+              _buildDescription(pokemon.about),
+              SizedBox(height: 28),
+              _buildHeightWeight(pokemon.height, pokemon.weight),
+              SizedBox(height: 31),
+              _buildBreeding(pokemon),
+              SizedBox(height: 35),
+              _buildLocation(),
+              SizedBox(height: 26),
+              _buildTraining(pokemon.baseExp),
+            ],
+          );
+        },
       ),
       builder: (context, child) {
         final scrollable = cardController.value.floor() == 1;
 
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 19, horizontal: 27),
-          physics: scrollable ? BouncingScrollPhysics() : NeverScrollableScrollPhysics(),
+          physics: scrollable
+              ? BouncingScrollPhysics()
+              : NeverScrollableScrollPhysics(),
           child: child,
         );
       },

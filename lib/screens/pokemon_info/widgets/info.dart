@@ -2,13 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/navigations/navigation.dart';
-import 'package:provider/provider.dart';
 
 import '../../../models/pokemon.dart';
 import '../../../widgets/animated_fade.dart';
 import '../../../widgets/animated_rotation.dart';
 import '../../../widgets/animated_slide.dart';
 import '../../../widgets/pokemon_type.dart';
+import '../pokemon_info.dart';
 import 'decoration_box.dart';
 
 class PokemonOverallInfo extends StatefulWidget {
@@ -20,6 +20,8 @@ class PokemonOverallInfo extends StatefulWidget {
 
 class _PokemonOverallInfoState extends State<PokemonOverallInfo>
     with TickerProviderStateMixin {
+  final _pokemonBloc = PokemonBloc.instance();
+
   double textDiffLeft = 0.0;
   double textDiffTop = 0.0;
 
@@ -44,12 +46,16 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
 
   @override
   void initState() {
-    _slideController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 360));
+    _slideController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 360),
+    );
     _slideController.forward();
 
     _rotateController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 5000));
+      vsync: this,
+      duration: Duration(milliseconds: 5000),
+    );
     _rotateController.repeat();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -73,15 +79,16 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
   @override
   void didChangeDependencies() {
     if (_pageController == null) {
-      PokemonModel pokemonModel = PokemonModel.of(context);
-
       _pageController = PageController(
-          viewportFraction: 0.6, initialPage: pokemonModel.index);
-      _pageController.addListener(() {
-        int next = _pageController.page.round();
+        viewportFraction: 0.6,
+        initialPage: _pokemonBloc.currentPokemonIndex,
+      );
 
-        if (pokemonModel.index != next) {
-          pokemonModel.setSelectedIndex(next);
+      _pageController.addListener(() {
+        int nextIndex = _pageController.page.round();
+
+        if (_pokemonBloc.currentPokemonIndex != nextIndex) {
+          _pokemonBloc.setCurrentPokemon(_pokemonBloc.pokemons[nextIndex]);
         }
       });
     }
@@ -130,8 +137,8 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
     );
   }
 
-  Widget _buildPokemonName(Pokemon pokemon) {
-    final cardScrollController = Provider.of<AnimationController>(context);
+  Widget _buildPokemonName() {
+    final cardScrollController = PokemonCardController.of(context).controller;
     final fadeAnimation =
         Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
 
@@ -149,17 +156,61 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
 
               return Transform.translate(
                 offset: Offset(textDiffLeft * value, textDiffTop * value),
-                child: Hero(
-                  tag: pokemon.name,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Text(
-                      pokemon.name,
-                      key: _currentTextKey,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 36 - (36 - 22) * value,
+                child: Container(
+                  key: _currentTextKey,
+                  child: StreamBuilder(
+                    stream: _pokemonBloc.currentPokemonStream,
+                    builder: (_, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+
+                      final pokemon = snapshot.data;
+
+                      return Material(
+                        color: Colors.transparent,
+                        child: Hero(
+                          tag: pokemon.name,
+                          child: Text(
+                            pokemon.name,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 36 - (36 - 22) * value,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+          StreamBuilder<Pokemon>(
+            stream: _pokemonBloc.currentPokemonStream,
+            builder: (_, snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              final pokemon = snapshot.data;
+
+              return AnimatedFade(
+                animation: fadeAnimation,
+                child: AnimatedSlide(
+                  animation: _slideController,
+                  child: Hero(
+                    tag: pokemon.id,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Text(
+                        pokemon.id,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                   ),
@@ -167,33 +218,13 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
               );
             },
           ),
-          AnimatedFade(
-            animation: fadeAnimation,
-            child: AnimatedSlide(
-              animation: _slideController,
-              child: Hero(
-                tag: pokemon.id,
-                child: Material(
-                  color: Colors.transparent,
-                  child: Text(
-                    pokemon.id,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildPokemonTypes(Pokemon pokemon) {
-    final cardScrollController = Provider.of<AnimationController>(context);
+  Widget _buildPokemonTypes() {
+    final cardScrollController = PokemonCardController.of(context).controller;
     final fadeAnimation =
         Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
 
@@ -201,34 +232,44 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
       animation: fadeAnimation,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 26),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Row(
-              children: pokemon.types
-                  .map((type) =>
-                      Hero(tag: type, child: PokemonType(type, large: true)))
-                  .toList(),
-            ),
-            AnimatedSlide(
-              animation: _slideController,
-              child: Text(
-                pokemon.category,
-                style: TextStyle(color: Colors.white, fontSize: 14),
-              ),
-            ),
-          ],
+        child: StreamBuilder<Pokemon>(
+          stream: _pokemonBloc.currentPokemonStream,
+          builder: (_, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            final pokemon = snapshot.data;
+
+            return Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Row(
+                  children: pokemon.types
+                      .map((type) => Hero(
+                          tag: type, child: PokemonType(type, large: true)))
+                      .toList(),
+                ),
+                AnimatedSlide(
+                  animation: _slideController,
+                  child: Text(
+                    pokemon.category,
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildPokemonSlider(
-      BuildContext context, Pokemon pokemon, List<Pokemon> pokemons) {
+  Widget _buildPokemonSlider(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final cardScrollController = Provider.of<AnimationController>(context);
+    final cardScrollController = PokemonCardController.of(context).controller;
     final fadeAnimation = Tween(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: cardScrollController,
@@ -240,7 +281,7 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
       ),
     );
 
-    final selectedIndex = PokemonModel.of(context).index;
+    final pokemons = _pokemonBloc.pokemons;
 
     return AnimatedFade(
       animation: fadeAnimation,
@@ -266,28 +307,42 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
               controller: _pageController,
               itemCount: pokemons.length,
               onPageChanged: (index) {
-                PokemonModel.of(context).setSelectedIndex(index);
+                _pokemonBloc.setCurrentPokemon(pokemons[index]);
               },
               itemBuilder: (context, index) => Hero(
                 tag: pokemons[index].image,
-                child: AnimatedPadding(
-                  duration: Duration(milliseconds: 600),
-                  curve: Curves.easeOutQuint,
-                  padding: EdgeInsets.only(
-                    top: selectedIndex == index ? 0 : screenSize.height * 0.04,
-                    bottom:
-                        selectedIndex == index ? 0 : screenSize.height * 0.04,
-                  ),
-                  child: CachedNetworkImage(
-                    imageUrl: pokemons[index].image,
-                    imageBuilder: (context, image) => Image(
-                      image: image,
-                      width: screenSize.height * 0.28,
-                      height: screenSize.height * 0.28,
-                      alignment: Alignment.bottomCenter,
-                      color: selectedIndex == index ? null : Colors.black26,
-                    ),
-                  ),
+                child: StreamBuilder(
+                  stream: _pokemonBloc.currentPokemonStream,
+                  builder: (_, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    final selectedIndex = _pokemonBloc.currentPokemonIndex;
+
+                    return AnimatedPadding(
+                      duration: Duration(milliseconds: 600),
+                      curve: Curves.easeOutQuint,
+                      padding: EdgeInsets.only(
+                        top: selectedIndex == index
+                            ? 0
+                            : screenSize.height * 0.04,
+                        bottom: selectedIndex == index
+                            ? 0
+                            : screenSize.height * 0.04,
+                      ),
+                      child: CachedNetworkImage(
+                        imageUrl: pokemons[index].image,
+                        imageBuilder: (context, image) => Image(
+                          image: image,
+                          width: screenSize.height * 0.28,
+                          height: screenSize.height * 0.28,
+                          alignment: Alignment.bottomCenter,
+                          color: selectedIndex == index ? null : Colors.black26,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -300,7 +355,7 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
   List<Widget> _buildDecorations() {
     final screenSize = MediaQuery.of(context).size;
 
-    final cardScrollController = Provider.of<AnimationController>(context);
+    final cardScrollController = PokemonCardController.of(context).controller;
     final dottedAnimation =
         Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
 
@@ -353,18 +408,16 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
     return Stack(
       children: [
         ..._buildDecorations(),
-        Consumer<PokemonModel>(
-          builder: (_, model, child) => Column(
-            children: <Widget>[
-              _buildAppBar(),
-              SizedBox(height: 9),
-              _buildPokemonName(model.pokemon),
-              SizedBox(height: 9),
-              _buildPokemonTypes(model.pokemon),
-              SizedBox(height: 25),
-              _buildPokemonSlider(context, model.pokemon, model.pokemons),
-            ],
-          ),
+        Column(
+          children: <Widget>[
+            _buildAppBar(),
+            SizedBox(height: 9),
+            _buildPokemonName(),
+            SizedBox(height: 9),
+            _buildPokemonTypes(),
+            SizedBox(height: 25),
+            _buildPokemonSlider(context),
+          ],
         ),
       ],
     );
