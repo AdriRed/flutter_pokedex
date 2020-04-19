@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pokedex/models/pokemon.dart';
+import 'package:pokedex/screens/pokedex_api/pokedex_api.dart';
 import 'package:provider/provider.dart';
 
 import 'configs/AppColors.dart';
@@ -26,6 +27,9 @@ class MyApp extends StatelessWidget {
 
       case '/pokedex':
         return FadeRoute(page: Pokedex());
+
+      case '/pokedex-api':
+        return FadeRoute(page: PokedexApi());
 
       case '/pokemon-info':
         return FadeRoute(page: PokemonInfo());
@@ -55,7 +59,8 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         fontFamily: 'CircularStd',
-        textTheme: Theme.of(context).textTheme.apply(displayColor: AppColors.black),
+        textTheme:
+            Theme.of(context).textTheme.apply(displayColor: AppColors.black),
         scaffoldBackgroundColor: AppColors.lightGrey,
         primarySwatch: Colors.blue,
       ),
