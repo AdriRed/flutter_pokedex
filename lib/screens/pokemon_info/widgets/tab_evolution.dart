@@ -107,7 +107,8 @@ class PokemonEvolution extends StatelessWidget {
           children: <Widget>[
             Text(
               "Evolution Chain",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, height: 0.8),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: 16, height: 0.8),
             ),
             SizedBox(height: 28),
             ...buildEvolutionList(model.pokemon.evolutions),
@@ -118,7 +119,9 @@ class PokemonEvolution extends StatelessWidget {
         final scrollable = cardController.value.floor() == 1;
 
         return SingleChildScrollView(
-          physics: scrollable ? BouncingScrollPhysics() : NeverScrollableScrollPhysics(),
+          physics: scrollable
+              ? BouncingScrollPhysics()
+              : NeverScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(vertical: 31, horizontal: 28),
           child: widget,
         );

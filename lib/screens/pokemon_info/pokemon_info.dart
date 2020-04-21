@@ -13,7 +13,8 @@ class PokemonInfo extends StatefulWidget {
   _PokemonInfoState createState() => _PokemonInfoState();
 }
 
-class _PokemonInfoState extends State<PokemonInfo> with TickerProviderStateMixin {
+class _PokemonInfoState extends State<PokemonInfo>
+    with TickerProviderStateMixin {
   static const double _pokemonSlideOverflow = 20;
 
   AnimationController _cardController;
@@ -32,16 +33,20 @@ class _PokemonInfoState extends State<PokemonInfo> with TickerProviderStateMixin
 
   @override
   void initState() {
-    _cardController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
-    _cardHeightController = AnimationController(vsync: this, duration: Duration(milliseconds: 220));
+    _cardController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+    _cardHeightController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 220));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final screenHeight = MediaQuery.of(context).size.height;
       final appBarHeight = 60 + 22 + IconTheme.of(context).size;
 
-      final RenderBox pokemonInfoBox = _pokemonInfoKey.currentContext.findRenderObject();
+      final RenderBox pokemonInfoBox =
+          _pokemonInfoKey.currentContext.findRenderObject();
 
-      _cardMinHeight = screenHeight - pokemonInfoBox.size.height + _pokemonSlideOverflow;
+      _cardMinHeight =
+          screenHeight - pokemonInfoBox.size.height + _pokemonSlideOverflow;
       _cardMaxHeight = screenHeight - appBarHeight;
 
       _cardHeightController.forward();

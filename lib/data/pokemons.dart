@@ -7,10 +7,12 @@ import '../models/pokemon.dart';
 
 // Parses Pokemon.json File
 Future<List<Pokemon>> getPokemonsList(BuildContext context) async {
-  String jsonString = await DefaultAssetBundle.of(context).loadString("assets/pokemons.json");
+  String jsonString =
+      await DefaultAssetBundle.of(context).loadString("assets/pokemons.json");
   List<dynamic> jsonData = json.jsonDecode(jsonString);
 
-  List<Pokemon> pokemons = jsonData.map((json) => Pokemon.fromJson(json)).toList();
+  List<Pokemon> pokemons =
+      jsonData.map((json) => Pokemon.fromJson(json)).toList();
 
   for (final pokemon in pokemons) {
     List<Pokemon> evolutions = pokemon.evolutions

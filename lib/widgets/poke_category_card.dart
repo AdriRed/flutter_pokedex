@@ -83,7 +83,8 @@ class PokeCategoryCard extends StatelessWidget {
           children: <Widget>[
             _buildShadow(itemWidth),
             MaterialButton(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
               padding: EdgeInsets.all(0),
               color: category.color,
               splashColor: Colors.white10,

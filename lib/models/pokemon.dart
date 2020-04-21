@@ -57,8 +57,10 @@ class Pokemon {
         baseExp = json['base_exp'],
         evolvedFrom = json['evolvedfrom'],
         reason = json['reason'],
-        evolutions =
-            json['evolutions'].map((id) => Pokemon(id: id as String)).cast<Pokemon>().toList();
+        evolutions = json['evolutions']
+            .map((id) => Pokemon(id: id as String))
+            .cast<Pokemon>()
+            .toList();
 
   final String about;
   final int attack;

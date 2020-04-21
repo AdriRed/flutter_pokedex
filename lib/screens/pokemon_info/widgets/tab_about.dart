@@ -12,7 +12,8 @@ class PokemonAbout extends StatelessWidget {
       children: <Widget>[
         Text(
           text,
-          style: TextStyle(fontSize: 16, height: 0.8, fontWeight: FontWeight.bold),
+          style:
+              TextStyle(fontSize: 16, height: 0.8, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 22),
         if (child != null) child,
@@ -99,7 +100,8 @@ class PokemonAbout extends StatelessWidget {
               flex: 2,
               child: Row(
                 children: <Widget>[
-                  Image.asset("assets/images/female.png", width: 12, height: 12),
+                  Image.asset("assets/images/female.png",
+                      width: 12, height: 12),
                   SizedBox(width: 4),
                   Text(pokemon.femalePercentage, style: TextStyle(height: 0.8)),
                 ],
@@ -119,7 +121,9 @@ class PokemonAbout extends StatelessWidget {
       Row(
         children: <Widget>[
           Expanded(child: _buildLabel("Egg Groups")),
-          Expanded(flex: 3, child: Text(pokemon.eggGroups, style: TextStyle(height: 0.8))),
+          Expanded(
+              flex: 3,
+              child: Text(pokemon.eggGroups, style: TextStyle(height: 0.8))),
           //Expanded(flex: 2, child: SizedBox()),
         ],
       ),
@@ -187,7 +191,9 @@ class PokemonAbout extends StatelessWidget {
 
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 19, horizontal: 27),
-          physics: scrollable ? BouncingScrollPhysics() : NeverScrollableScrollPhysics(),
+          physics: scrollable
+              ? BouncingScrollPhysics()
+              : NeverScrollableScrollPhysics(),
           child: child,
         );
       },

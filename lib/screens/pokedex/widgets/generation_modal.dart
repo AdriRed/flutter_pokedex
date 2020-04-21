@@ -49,7 +49,8 @@ class GenerationModal extends StatelessWidget {
                   mainAxisSpacing: 10,
                 ),
                 itemCount: generations.length,
-                itemBuilder: (context, index) => GenerationCard(generations[index]),
+                itemBuilder: (context, index) =>
+                    GenerationCard(generations[index]),
               ),
             ),
           ],

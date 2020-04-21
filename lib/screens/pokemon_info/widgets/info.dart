@@ -17,7 +17,8 @@ class PokemonOverallInfo extends StatefulWidget {
   _PokemonOverallInfoState createState() => _PokemonOverallInfoState();
 }
 
-class _PokemonOverallInfoState extends State<PokemonOverallInfo> with TickerProviderStateMixin {
+class _PokemonOverallInfoState extends State<PokemonOverallInfo>
+    with TickerProviderStateMixin {
   double textDiffLeft = 0.0;
   double textDiffTop = 0.0;
 
@@ -42,18 +43,24 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo> with TickerProv
 
   @override
   void initState() {
-    _slideController = AnimationController(vsync: this, duration: Duration(milliseconds: 360));
+    _slideController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 360));
     _slideController.forward();
 
-    _rotateController = AnimationController(vsync: this, duration: Duration(milliseconds: 5000));
+    _rotateController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 5000));
     _rotateController.repeat();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final RenderBox targetTextBox = _targetTextKey.currentContext.findRenderObject();
-      final Offset targetTextPosition = targetTextBox.localToGlobal(Offset.zero);
+      final RenderBox targetTextBox =
+          _targetTextKey.currentContext.findRenderObject();
+      final Offset targetTextPosition =
+          targetTextBox.localToGlobal(Offset.zero);
 
-      final RenderBox currentTextBox = _currentTextKey.currentContext.findRenderObject();
-      final Offset currentTextPosition = currentTextBox.localToGlobal(Offset.zero);
+      final RenderBox currentTextBox =
+          _currentTextKey.currentContext.findRenderObject();
+      final Offset currentTextPosition =
+          currentTextBox.localToGlobal(Offset.zero);
 
       textDiffLeft = targetTextPosition.dx - currentTextPosition.dx;
       textDiffTop = targetTextPosition.dy - currentTextPosition.dy;
@@ -67,7 +74,8 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo> with TickerProv
     if (_pageController == null) {
       PokemonModel pokemonModel = PokemonModel.of(context);
 
-      _pageController = PageController(viewportFraction: 0.6, initialPage: pokemonModel.index);
+      _pageController = PageController(
+          viewportFraction: 0.6, initialPage: pokemonModel.index);
       _pageController.addListener(() {
         int next = _pageController.page.round();
 
@@ -123,7 +131,8 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo> with TickerProv
 
   Widget _buildPokemonName(Pokemon pokemon) {
     final cardScrollController = Provider.of<AnimationController>(context);
-    final fadeAnimation = Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
+    final fadeAnimation =
+        Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 26),
@@ -184,7 +193,8 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo> with TickerProv
 
   Widget _buildPokemonTypes(Pokemon pokemon) {
     final cardScrollController = Provider.of<AnimationController>(context);
-    final fadeAnimation = Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
+    final fadeAnimation =
+        Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
 
     return AnimatedFade(
       animation: fadeAnimation,
@@ -197,7 +207,8 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo> with TickerProv
           children: <Widget>[
             Row(
               children: pokemon.types
-                  .map((type) => Hero(tag: type, child: PokemonType(type, large: true)))
+                  .map((type) =>
+                      Hero(tag: type, child: PokemonType(type, large: true)))
                   .toList(),
             ),
             AnimatedSlide(
@@ -213,7 +224,8 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo> with TickerProv
     );
   }
 
-  Widget _buildPokemonSlider(BuildContext context, Pokemon pokemon, List<Pokemon> pokemons) {
+  Widget _buildPokemonSlider(
+      BuildContext context, Pokemon pokemon, List<Pokemon> pokemons) {
     final screenSize = MediaQuery.of(context).size;
     final cardScrollController = Provider.of<AnimationController>(context);
     final fadeAnimation = Tween(begin: 1.0, end: 0.0).animate(
@@ -262,7 +274,8 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo> with TickerProv
                   curve: Curves.easeOutQuint,
                   padding: EdgeInsets.only(
                     top: selectedIndex == index ? 0 : screenSize.height * 0.04,
-                    bottom: selectedIndex == index ? 0 : screenSize.height * 0.04,
+                    bottom:
+                        selectedIndex == index ? 0 : screenSize.height * 0.04,
                   ),
                   child: CachedNetworkImage(
                     imageUrl: pokemons[index].image,
@@ -287,11 +300,14 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo> with TickerProv
     final screenSize = MediaQuery.of(context).size;
 
     final cardScrollController = Provider.of<AnimationController>(context);
-    final dottedAnimation = Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
+    final dottedAnimation =
+        Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
 
     final pokeSize = screenSize.width * 0.448;
-    final pokeTop = -(pokeSize / 2 - (IconTheme.of(context).size / 2 + _appBarTopPadding));
-    final pokeRight = -(pokeSize / 2 - (IconTheme.of(context).size / 2 + _appBarHorizontalPadding));
+    final pokeTop =
+        -(pokeSize / 2 - (IconTheme.of(context).size / 2 + _appBarTopPadding));
+    final pokeRight = -(pokeSize / 2 -
+        (IconTheme.of(context).size / 2 + _appBarHorizontalPadding));
 
     return [
       Positioned(

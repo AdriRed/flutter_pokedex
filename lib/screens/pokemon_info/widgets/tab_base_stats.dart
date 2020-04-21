@@ -60,7 +60,8 @@ class PokemonBaseStats extends StatefulWidget {
   _PokemonBaseStatsState createState() => _PokemonBaseStatsState();
 }
 
-class _PokemonBaseStatsState extends State<PokemonBaseStats> with SingleTickerProviderStateMixin {
+class _PokemonBaseStatsState extends State<PokemonBaseStats>
+    with SingleTickerProviderStateMixin {
   Animation<double> _animation;
   AnimationController _controller;
 
@@ -98,9 +99,15 @@ class _PokemonBaseStatsState extends State<PokemonBaseStats> with SingleTickerPr
       SizedBox(height: 14),
       Stat(animation: _animation, label: "Defense", value: pokemon.defense),
       SizedBox(height: 14),
-      Stat(animation: _animation, label: "Sp. Atk", value: pokemon.specialAttack),
+      Stat(
+          animation: _animation,
+          label: "Sp. Atk",
+          value: pokemon.specialAttack),
       SizedBox(height: 14),
-      Stat(animation: _animation, label: "Sp. Def", value: pokemon.specialDefense),
+      Stat(
+          animation: _animation,
+          label: "Sp. Def",
+          value: pokemon.specialDefense),
       SizedBox(height: 14),
       Stat(animation: _animation, label: "Speed", value: pokemon.speed),
       SizedBox(height: 14),

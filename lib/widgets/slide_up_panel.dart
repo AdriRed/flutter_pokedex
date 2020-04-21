@@ -42,7 +42,8 @@ class _SlidingUpPanelState extends State<SlidingUpPanel> {
   }
 
   void _onDrag(DragUpdateDetails details) {
-    _controller.value -= details.primaryDelta / (widget.maxHeight - widget.minHeight);
+    _controller.value -=
+        details.primaryDelta / (widget.maxHeight - widget.minHeight);
   }
 
   void _onDragEnd(DragEndDetails details) {
@@ -51,8 +52,8 @@ class _SlidingUpPanelState extends State<SlidingUpPanel> {
     if (_controller.isAnimating) return;
 
     if (details.velocity.pixelsPerSecond.dy.abs() >= minFlingVelocity) {
-      double visualVelocity =
-          -details.velocity.pixelsPerSecond.dy / (widget.maxHeight - widget.minHeight);
+      double visualVelocity = -details.velocity.pixelsPerSecond.dy /
+          (widget.maxHeight - widget.minHeight);
 
       _controller.fling(velocity: visualVelocity);
 
@@ -83,7 +84,8 @@ class _SlidingUpPanelState extends State<SlidingUpPanel> {
         onVerticalDragUpdate: _onDrag,
         onVerticalDragEnd: _onDragEnd,
         child: Container(
-          height: _controller.value * (widget.maxHeight - widget.minHeight) + widget.minHeight,
+          height: _controller.value * (widget.maxHeight - widget.minHeight) +
+              widget.minHeight,
           child: Stack(
             children: <Widget>[
               Positioned(

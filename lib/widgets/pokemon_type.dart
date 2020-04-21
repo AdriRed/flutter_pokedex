@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PokemonType extends StatelessWidget {
-  const PokemonType(this.label, {Key key, this.large = false}) : super(key: key);
+  const PokemonType(this.label, {Key key, this.large = false})
+      : super(key: key);
 
   final String label;
   final bool large;
