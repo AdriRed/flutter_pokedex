@@ -11,6 +11,9 @@ import 'ApiConsumer.dart';
 import 'PokeIndex.dart';
 
 class PokemonSpeciesProvider {
+  static String host = "pokeapi.co"; //"192.168.0.21:5001";
+
+  static String innerRoute = "api/v2"; //"pokeapi";
   String next;
   int _page = 0;
   int _total = 0;
@@ -65,14 +68,18 @@ class PokemonSpeciesProvider {
   }
 
   Uri getUrl(String strurl) {
-    String route = strurl.split("pokeapi.co/")[1];
+    String route = strurl.split(host + "/")[1];
 
-    return new Uri.https("pokeapi.co", route);
+    return new Uri.https(host, route);
   }
 
+  static HttpClient http = new HttpClient()
+    ..badCertificateCallback = (_, __, ___) => true;
+
   Future<Map<String, dynamic>> _procesarRespuesta(Uri url) async {
-    HttpClient http = new HttpClient();
-    final resp = await http.getUrl(url);
+    final resp = await http.getUrl(
+      url,
+    );
     final respbody = await resp.close();
     log(respbody.statusCode.toString() + " -- " + url.toString());
     final converted = await respbody.transform(utf8.decoder).join();
@@ -87,7 +94,6 @@ class PokemonSpeciesProvider {
 
   Future<dynamic> find(String query) async {
     if (index == null) initIndex().then((x) => find(query));
-    log("QUERY: " + query);
     query = query.trim().toLowerCase();
     int n = int.tryParse(query);
     return n == null ? _findByName(query) : _findById(n);
@@ -98,8 +104,9 @@ class PokemonSpeciesProvider {
   }
 
   Future<PokeIndex> initIndex() async {
-    var json = await _procesarRespuesta(
-        Uri.tryParse("https://pokeapi.co/api/v2/pokemon-species?limit=-1"));
+    if (index != null) return index;
+    var json = await _procesarRespuesta(Uri.tryParse(
+        "https://" + host + "/" + innerRoute + "/pokemon-species?limit=-1"));
     index = PokeIndex.fromJSON(json);
     return index;
   }

@@ -2,14 +2,19 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:developer';
+import 'package:pokedex/apimodels/Pokemon.dart';
+import 'package:pokedex/apimodels/PokemonBaseType.dart';
+import 'package:pokedex/apimodels/PokemonSpecies.dart';
+import 'package:pokedex/consumers/PokemonSpeciesProvider.dart';
+
 import '../apimodels/Model.dart';
 
 import 'Locker.dart';
 
 class ApiConsumer<T extends Model> {
-  static const String domain = "pokeapi.co";
   Uri url;
   T info;
+
   Locker _locker = LockManager.getLocker();
   static Repository repo = new Repository();
 
@@ -18,14 +23,6 @@ class ApiConsumer<T extends Model> {
   }
 
   Future<T> getInfo() async {
-    _recall() {
-      return getInfo();
-    }
-
-    if (_locker.locked) return await _locker.waitLock();
-    _locker.setFunction(_recall);
-    _locker.lock();
-
     if (hasInfo) {
       _locker.unlock();
       return info;
@@ -37,13 +34,19 @@ class ApiConsumer<T extends Model> {
       return info;
     }
 
+    _recall() {
+      return getInfo();
+    }
+
+    if (_locker.locked) return await _locker.waitLock();
+    _locker.setFunction(_recall);
+    _locker.lock();
+
     try {
-      HttpClient http = new HttpClient();
+      HttpClient http = new HttpClient()
+        ..badCertificateCallback = (_, __, ___) => true;
       final resp = await http.getUrl(url);
       final respbody = await resp.close();
-
-      log(respbody.statusCode.toString() + " -- " + url.toString());
-
       if (respbody.statusCode != 200) {
         _locker.unlock();
         return await getInfo();
@@ -51,11 +54,12 @@ class ApiConsumer<T extends Model> {
 
       final converted = await respbody.transform(utf8.decoder).join();
       final decoded = json.decode(converted);
-
       T object = new Model.fromJSON(T, decoded);
       info = object;
     } catch (e) {
       log(e.toString());
+      _locker.unlock();
+      return null;
     }
     repo.add(url.toString(), info);
     _locker.unlock();
@@ -63,8 +67,7 @@ class ApiConsumer<T extends Model> {
   }
 
   ApiConsumer(String struri) {
-    String route = struri.split(domain + "/")[1];
-    url = new Uri.https(domain, route);
+    url = Uri.parse(struri);
   }
 
   ApiConsumer.uri(Uri uri) {
@@ -80,6 +83,7 @@ class Repository {
   }
 
   void add(String k, dynamic v) {
+    log(k);
     _repo.putIfAbsent(k, () => v);
   }
 

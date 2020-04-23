@@ -1,10 +1,12 @@
+import 'package:pokedex/apimodels/PokemonBaseType.dart';
+
 import '../apimodels/Pokemon.dart';
 import '../apimodels/PokemonSpecies.dart';
 
 class PokemonLoader {
-  static Future<void> futureAllTypes(Pokemon variety) async {
+  static Future<List<PokemonBaseType>> futureAllTypes(Pokemon variety) async {
     // for (var variety in species.varieties) {
-    List<Future<dynamic>> futures = [];
+    List<Future<PokemonBaseType>> futures = [];
     for (var type in variety.types) {
       futures.add(type.type.getInfo());
     }

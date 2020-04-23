@@ -16,7 +16,7 @@ class Locker {
   }
 
   unlock() {
-    completer.complete();
+    if (completer != null && !completer.isCompleted) completer.complete();
     _isWorking = null;
   }
 
