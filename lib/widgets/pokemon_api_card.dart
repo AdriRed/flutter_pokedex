@@ -165,7 +165,7 @@ class _PokemonApiCardState extends State<PokemonApiCard> {
           BoxShadow(
             color: backcolor,
             // blurRadius: 15,
-            offset: Offset(0, 8),
+            // offset: Offset(0, 8),
           ),
         ],
       ),
@@ -213,58 +213,6 @@ class _PokemonApiCardState extends State<PokemonApiCard> {
                 ),
               ),
             );
-
-            // return FutureBuilder(
-            //   future: Future.wait(
-            //       defaultVariety().types.map((x) => x.type.getInfo())),
-            //   builder: (ctxData2, snapshotData2) {
-            //     if (snapshotData2.connectionState != ConnectionState.done) {
-            //       return _buildBox(
-            //         backcolor: Colors.black,
-            //         child: ClipRRect(
-            //           borderRadius: BorderRadius.circular(15),
-            //           child: Material(
-            //             color: Colors.transparent,
-            //             child: InkWell(
-            //               onTap: onPress,
-            //               splashColor: Colors.white10,
-            //               highlightColor: Colors.white10,
-            //               child: Stack(
-            //                 children: [
-            //                   _buildCardContent(false),
-            //                   ..._buildDecorations(itemHeight),
-            //                 ],
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       );
-            //     }
-            //     Color bcolor = AppColors
-            //         .types[defaultVariety().types.first.type.info.id - 1];
-            //     log(bcolor.toString());
-            //     return _buildBox(
-            //       backcolor: bcolor,
-            //       child: ClipRRect(
-            //         borderRadius: BorderRadius.circular(15),
-            //         child: Material(
-            //           color: Colors.transparent,
-            //           child: InkWell(
-            //             onTap: onPress,
-            //             splashColor: Colors.white10,
-            //             highlightColor: Colors.white10,
-            //             child: Stack(
-            //               children: [
-            //                 _buildCardContent(true),
-            //                 ..._buildDecorations(itemHeight),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-            //     );
-            //   },
-            // );
           },
         );
       },
