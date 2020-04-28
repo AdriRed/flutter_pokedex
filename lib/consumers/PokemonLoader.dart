@@ -22,6 +22,14 @@ class PokemonLoader {
     return Future.wait(futures);
   }
 
+  static Future<void> futureEggGroups(PokemonSpecies species) async {
+    List<Future<dynamic>> futures = [];
+    for (var eggGroup in species.eggGroups) {
+      futures.add(eggGroup.getInfo());
+    }
+    return Future.wait(futures);
+  }
+
   static Future<void> futureEvolution(PokemonSpecies species) async {
     return species.evolutionChain
         .getInfo()

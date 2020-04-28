@@ -17,9 +17,14 @@ class Pokemon implements Model {
   List<PokemonType> types;
   List<PokemonAbility> abilities;
 
+  int height, weight;
+  int baseExperience;
+
   Pokemon.fromJSON(Map<String, dynamic> json) {
     id = json["id"];
-
+    height = json["height"];
+    weight = json["weight"];
+    baseExperience = json["base_experience"];
     stats = new List();
     sprites = new Map();
     types = new List();

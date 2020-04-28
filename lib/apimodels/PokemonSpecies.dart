@@ -15,12 +15,16 @@ class PokemonSpecies implements Model {
   Map<String, String> genera;
   List<PokemonVariety> varieties;
   ApiConsumer<PokemonEvolutionChain> evolutionChain;
+  List<ApiConsumer<PokemonEggGroup>> eggGroups;
+  int genderRate;
+
+  bool get genderless => genderRate == -1;
 
   PokemonSpecies.fromJSON(Map<String, dynamic> json) {
     //log(json["name"]);
     id = json["id"];
     order = json["order"];
-
+    genderRate = json["gender_rate"];
     names = new Map();
     descriptionEntries = new Map();
     genera = new Map();
@@ -37,6 +41,10 @@ class PokemonSpecies implements Model {
       varieties.add(new PokemonVariety.fromJSON(variety));
 
     evolutionChain = new ApiConsumer(json["evolution_chain"]["url"]);
+    eggGroups = new List();
+
+    for (var eggGroup in json["egg_groups"])
+      eggGroups.add(new ApiConsumer(eggGroup["url"]));
 
     varieties.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
   }
@@ -60,5 +68,16 @@ class PokemonVariety {
       return 1;
     else
       return -1;
+  }
+}
+
+class PokemonEggGroup implements Model {
+  Map<String, String> names;
+
+  PokemonEggGroup.fromJSON(Map<String, dynamic> json) {
+    names = new Map();
+
+    for (var name in json["names"])
+      names.putIfAbsent(name["language"]["name"], () => name["name"]);
   }
 }

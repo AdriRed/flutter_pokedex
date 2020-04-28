@@ -13,35 +13,28 @@ import '../consumers/PokeIndex.dart';
 abstract class Model {
   factory Model.fromJSON(Type type, Map<String, dynamic> json) {
     // log("factory: " + type.toString());
+
     switch (type) {
       case Pokemon:
-        Pokemon a = new Pokemon.fromJSON(json);
-        return a;
-        break;
+        return new Pokemon.fromJSON(json);
       case PokemonBaseAbility:
         return new PokemonBaseAbility.fromJSON(json);
-        break;
       case PokemonEvolutionChain:
         return new PokemonEvolutionChain.fromJSON(json);
-        break;
       case PokemonSpecies:
-        PokemonSpecies a = new PokemonSpecies.fromJSON(json);
-        return a;
-        break;
+        return new PokemonSpecies.fromJSON(json);
       case PokemonBaseStat:
         return new PokemonBaseStat.fromJSON(json);
-        break;
       case PokemonBaseType:
         return new PokemonBaseType.fromJSON(json);
       case PokeIndex:
         return new PokeIndex.fromJSON(json);
-        break;
       case PokemonGeneration:
         return new PokemonGeneration.fromJSON(json);
-        break;
       case PokemonSpeciesList:
         return new PokemonSpeciesList.fromJSON(json);
-        break;
+      case PokemonEggGroup:
+        return new PokemonEggGroup.fromJSON(json);
     }
 
     throw Exception("Not valid type");
