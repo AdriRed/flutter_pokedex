@@ -20,7 +20,7 @@ class PokeapiModel extends ChangeNotifier {
   bool get hasData => _pokemons.hasInfo;
 
   ApiConsumer<PokemonSpecies> get pokemonSpecies =>
-      _pokemons.info.entries.firstWhere((x) => x.id == _selectedIndex).species;
+      _pokemons.info.entries[_selectedIndex].species;
 
   int get index => _selectedIndex;
 

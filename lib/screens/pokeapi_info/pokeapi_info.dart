@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pokedex/configs/AppColors.dart';
+import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/pokemon.dart';
@@ -6,14 +8,14 @@ import '../../widgets/slide_up_panel.dart';
 import 'widgets/info.dart';
 import 'widgets/tab.dart';
 
-class PokedexInfo extends StatefulWidget {
-  const PokedexInfo();
+class PokeapiInfo extends StatefulWidget {
+  const PokeapiInfo();
 
   @override
-  _PokedexInfoState createState() => _PokedexInfoState();
+  _PokeapiInfoState createState() => _PokeapiInfoState();
 }
 
-class _PokedexInfoState extends State<PokedexInfo>
+class _PokeapiInfoState extends State<PokeapiInfo>
     with TickerProviderStateMixin {
   static const double _pokemonSlideOverflow = 20;
 
@@ -62,10 +64,12 @@ class _PokedexInfoState extends State<PokedexInfo>
       child: MultiProvider(
         providers: [ListenableProvider.value(value: _cardController)],
         child: Scaffold(
-          body: Consumer<PokemonModel>(
+          body: Consumer<PokeapiModel>(
             builder: (_, model, child) => AnimatedContainer(
               duration: Duration(milliseconds: 300),
-              color: model.pokemon.color,
+              color: AppColors.types[model.pokemonSpecies.info.defaultVariety
+                      .pokemon.info.types[0].type.info.id -
+                  1],
               child: child,
             ),
             child: Stack(

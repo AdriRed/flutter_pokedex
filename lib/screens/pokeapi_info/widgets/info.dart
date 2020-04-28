@@ -76,15 +76,15 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
   @override
   void didChangeDependencies() {
     if (_pageController == null) {
-      PokemonModel pokemonModel = PokemonModel.of(context);
+      PokeapiModel pokeapiModel = PokeapiModel.of(context);
 
       _pageController = PageController(
-          viewportFraction: 0.6, initialPage: pokemonModel.index);
+          viewportFraction: 0.6, initialPage: pokeapiModel.index);
       _pageController.addListener(() {
         int next = _pageController.page.round();
 
-        if (pokemonModel.index != next) {
-          pokemonModel.setSelectedIndex(next);
+        if (pokeapiModel.index != next) {
+          pokeapiModel.setSelectedIndex(next);
         }
       });
     }
@@ -245,7 +245,7 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
       ),
     );
 
-    final selectedIndex = PokemonModel.of(context).index;
+    final selectedIndex = PokeapiModel.of(context).index;
 
     return AnimatedFade(
       animation: fadeAnimation,
@@ -271,7 +271,7 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
               controller: _pageController,
               itemCount: pokemons.length,
               onPageChanged: (index) {
-                PokemonModel.of(context).setSelectedIndex(index);
+                PokeapiModel.of(context).setSelectedIndex(index);
               },
               itemBuilder: (context, index) => Hero(
                 tag: pokemons[index].info.defaultVariety.pokemon.info.hdSprite,

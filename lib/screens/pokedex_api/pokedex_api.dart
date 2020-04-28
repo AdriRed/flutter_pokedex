@@ -99,7 +99,7 @@ class _PokedexApiState extends State<PokedexApi>
             index: index,
             onPress: () {
               pokeapiModel.setSelectedIndex(index);
-              Navigator.of(context).pushNamed("/pokemon-info");
+              Navigator.of(context).pushNamed("/pokeapi-info");
             },
           ),
         ),

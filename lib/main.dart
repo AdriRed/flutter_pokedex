@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/models/pokemon.dart';
+import 'package:pokedex/screens/pokeapi_info/pokeapi_info.dart';
 import 'package:pokedex/screens/pokedex_api/pokedex_api.dart';
 import 'package:provider/provider.dart';
 
@@ -37,6 +38,9 @@ class MyApp extends StatelessWidget {
 
       case '/pokemon-info':
         return FadeRoute(page: PokemonInfo());
+
+      case '/pokeapi-info':
+        return FadeRoute(page: PokeapiInfo());
 
       default:
         return null;

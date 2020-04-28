@@ -4,8 +4,8 @@ import 'package:pokedex/consumers/ApiConsumer.dart';
 
 import '../../models/pokemon.dart';
 
-class PokemonInfoArguments extends ChangeNotifier {
-  PokemonInfoArguments({this.index, this.pokemons});
+class PokeapiInfoArguments extends ChangeNotifier {
+  PokeapiInfoArguments({this.index, this.pokemons});
 
   int index;
   final List<ApiConsumer<PokemonSpecies>> pokemons;

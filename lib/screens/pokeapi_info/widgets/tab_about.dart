@@ -7,7 +7,38 @@ import 'package:provider/provider.dart';
 import '../../../configs/AppColors.dart';
 import '../../../models/pokemon.dart';
 
-class PokeapiAbout extends StatelessWidget {
+class PokeapiAbout extends StatefulWidget {
+  PokeapiAbout({Key key}) : super(key: key);
+
+  @override
+  _PokeapiAboutState createState() => _PokeapiAboutState();
+}
+
+class _PokeapiAboutState extends State<PokeapiAbout> {
+  bool _breedingLoaded;
+
+  @override
+  void initState() {
+    super.initState();
+    _breedingLoaded = PokeapiModel.of(context)
+        .pokemonSpecies
+        .info
+        .eggGroups
+        .every((x) => x.hasInfo);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_breedingLoaded)
+      Future.wait(PokeapiModel.of(context)
+              .pokemonSpecies
+              .info
+              .eggGroups
+              .map((x) => x.getInfo()))
+          .then((_) => this.setState(() => _breedingLoaded = true));
+  }
+
   Widget _buildSection(String text, {List<Widget> children, Widget child}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,13 +159,22 @@ class PokeapiAbout extends StatelessWidget {
       Row(
         children: <Widget>[
           Expanded(child: _buildLabel("Egg Groups")),
-          Expanded(
-              flex: 3,
-              child: Text(
-                  pokemon.eggGroups
-                      .map((egg) => egg.info.names["es"])
-                      .join(", "),
-                  style: TextStyle(height: 0.8))),
+          _breedingLoaded
+              ? Expanded(
+                  flex: 3,
+                  child: Text(
+                    pokemon.eggGroups
+                        .map((egg) => egg.info.names["es"])
+                        .join(", "),
+                    style: TextStyle(height: 0.8),
+                  ),
+                )
+              : Expanded(
+                  flex: 3,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
           //Expanded(flex: 2, child: SizedBox()),
         ],
       ),
@@ -210,3 +250,7 @@ class PokeapiAbout extends StatelessWidget {
     );
   }
 }
+
+// class PokeapiAbout extends StatelessWidget {
+
+// }

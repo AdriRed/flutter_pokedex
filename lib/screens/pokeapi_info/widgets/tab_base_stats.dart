@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pokedex/apimodels/PokemonBaseStat.dart';
+import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../../configs/AppColors.dart';
-import '../../../models/pokemon.dart';
+import '../../../apimodels/Pokemon.dart';
 import '../../../widgets/progress.dart';
 
 class Stat extends StatelessWidget {
@@ -92,43 +94,36 @@ class _PokemonBaseStatsState extends State<PokemonBaseStats>
   }
 
   List<Widget> generateStatWidget(Pokemon pokemon) {
-    return [
-      Stat(animation: _animation, label: "Hp", value: pokemon.hp),
-      SizedBox(height: 14),
-      Stat(animation: _animation, label: "Atttack", value: pokemon.attack),
-      SizedBox(height: 14),
-      Stat(animation: _animation, label: "Defense", value: pokemon.defense),
-      SizedBox(height: 14),
-      Stat(
-          animation: _animation,
-          label: "Sp. Atk",
-          value: pokemon.specialAttack),
-      SizedBox(height: 14),
-      Stat(
-          animation: _animation,
-          label: "Sp. Def",
-          value: pokemon.specialDefense),
-      SizedBox(height: 14),
-      Stat(animation: _animation, label: "Speed", value: pokemon.speed),
-      SizedBox(height: 14),
-      Stat(
-          animation: _animation,
-          label: "Total",
-          value: pokemon.total,
-          progress: pokemon.total / 600),
-    ];
+    Map<String, int> stats = new Map();
+
+    for (var stat in pokemon.stats) {
+      PokemonBaseStat baseStat = stat.stat.info;
+      stats[baseStat.names["es"]] = stat.value;
+    }
+
+    var widgets = stats.keys
+        .map((x) => Stat(animation: _animation, label: x, value: stats[x]))
+        .expand((x) => [
+              x,
+              SizedBox(
+                height: 14,
+              )
+            ]);
+
+    return widgets.take(widgets.length - 1);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(24),
-      child: Consumer<PokemonModel>(
+      child: Consumer<PokeapiModel>(
         builder: (_, model, child) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            ...generateStatWidget(model.pokemon),
+            ...generateStatWidget(
+                model.pokemonSpecies.info.defaultVariety.pokemon.info),
             SizedBox(height: 27),
             Text(
               "Type defenses",
@@ -140,7 +135,7 @@ class _PokemonBaseStatsState extends State<PokemonBaseStats>
             ),
             SizedBox(height: 15),
             Text(
-              "The effectiveness of each type on ${model.pokemon.name}.",
+              "The effectiveness of each type on ${model.pokemonSpecies.info.names["es"]}.",
               style: TextStyle(color: AppColors.black.withOpacity(0.6)),
             ),
           ],
