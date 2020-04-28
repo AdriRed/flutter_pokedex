@@ -189,7 +189,8 @@ class _PokemonApiCardState extends State<PokemonApiCard> {
                   Future.wait(x.types.map((type) => type.type.getInfo()))),
           builder: (ctxData, snapshotData) {
             if (snapshotData.connectionState != ConnectionState.done) {
-              return _buildBox(backcolor: AppColors.grey, child: Container());
+              return _buildBox(
+                  backcolor: AppColors.lightGrey, child: Container());
             }
             Color bcolor =
                 AppColors.types[defaultVariety().types.first.type.info.id - 1];

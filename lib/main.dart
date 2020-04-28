@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/models/pokemon.dart';
 import 'package:pokedex/screens/pokedex_api/pokedex_api.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,9 @@ void main() => runApp(
       MultiProvider(
         providers: [
           ChangeNotifierProvider(builder: (context) => PokemonModel()),
+          ChangeNotifierProvider(
+            builder: (context) => PokeapiModel(),
+          )
           // ... other provider(s)
         ],
         child: MyApp(),

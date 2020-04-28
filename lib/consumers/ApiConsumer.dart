@@ -5,7 +5,6 @@ import 'dart:developer';
 import 'package:pokedex/apimodels/Pokemon.dart';
 import 'package:pokedex/apimodels/PokemonBaseType.dart';
 import 'package:pokedex/apimodels/PokemonSpecies.dart';
-import 'package:pokedex/consumers/PokemonSpeciesProvider.dart';
 
 import '../apimodels/Model.dart';
 
