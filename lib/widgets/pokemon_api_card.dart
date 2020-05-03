@@ -145,7 +145,7 @@ class _PokemonApiCardState extends State<PokemonApiCard> {
         top: 10,
         right: 14,
         child: Text(
-          _formattedPokeIndex(this.index + 1),
+          _formattedPokeIndex(this.index),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,

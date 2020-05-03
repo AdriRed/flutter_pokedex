@@ -67,58 +67,15 @@ class _PokemonBaseStatsState extends State<PokemonBaseStats>
   Animation<double> _animation;
   AnimationController _controller;
 
-  bool _loadedStats;
-
   @override
   void dispose() {
     _controller.dispose();
-    PokeapiModel.of(context).removeListener(changePokemon);
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  void changePokemon() {
-    this.setState(() => _loadedStats = false);
-    Future.wait(PokeapiModel.of(context)
-            .pokemonSpecies
-            .info
-            .defaultVariety
-            .pokemon
-            .info
-            .stats
-            .map((x) => x.stat.getInfo()))
-        .then((_) => this.setState(() => _loadedStats = true));
   }
 
   @override
   void initState() {
     super.initState();
-    PokeapiModel.of(context).addListener(changePokemon);
-
-    _loadedStats = PokeapiModel.of(context)
-        .pokemonSpecies
-        .info
-        .defaultVariety
-        .pokemon
-        .info
-        .stats
-        .map((x) => x.stat)
-        .every((x) => x.hasInfo);
-    if (!_loadedStats) {
-      Future.wait(PokeapiModel.of(context)
-              .pokemonSpecies
-              .info
-              .defaultVariety
-              .pokemon
-              .info
-              .stats
-              .map((x) => x.stat.getInfo()))
-          .then((_) => this.setState(() => _loadedStats = true));
-    }
     _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 400),
@@ -136,8 +93,6 @@ class _PokemonBaseStatsState extends State<PokemonBaseStats>
 
   List<Widget> generateStatWidget(Pokemon pokemon) {
     Map<String, int> stats = new Map();
-
-    if (!_loadedStats) return [Center(child: CircularProgressIndicator())];
 
     for (var stat in pokemon.stats) {
       PokemonBaseStat baseStat = stat.stat.info;

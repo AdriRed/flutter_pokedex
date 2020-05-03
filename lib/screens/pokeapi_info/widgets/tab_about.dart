@@ -15,29 +15,29 @@ class PokeapiAbout extends StatefulWidget {
 }
 
 class _PokeapiAboutState extends State<PokeapiAbout> {
-  bool _breedingLoaded;
+  // bool _breedingLoaded;
 
-  @override
-  void initState() {
-    super.initState();
-    _breedingLoaded = PokeapiModel.of(context)
-        .pokemonSpecies
-        .info
-        .eggGroups
-        .every((x) => x.hasInfo);
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _breedingLoaded = PokeapiModel.of(context)
+  //       .pokemonSpecies
+  //       .info
+  //       .eggGroups
+  //       .every((x) => x.hasInfo);
+  // }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_breedingLoaded)
-      Future.wait(PokeapiModel.of(context)
-              .pokemonSpecies
-              .info
-              .eggGroups
-              .map((x) => x.getInfo()))
-          .then((_) => this.setState(() => _breedingLoaded = true));
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   if (!_breedingLoaded)
+  //     Future.wait(PokeapiModel.of(context)
+  //             .pokemonSpecies
+  //             .info
+  //             .eggGroups
+  //             .map((x) => x.getInfo()))
+  //         .then((_) => this.setState(() => _breedingLoaded = true));
+  // }
 
   Widget _buildSection(String text, {List<Widget> children, Widget child}) {
     return Column(
@@ -159,21 +159,20 @@ class _PokeapiAboutState extends State<PokeapiAbout> {
       Row(
         children: <Widget>[
           Expanded(child: _buildLabel("Egg Groups")),
-          _breedingLoaded
+          // _breedingLoaded
+          pokemon.eggGroups.every((x) => x.hasInfo)
               ? Expanded(
                   flex: 3,
                   child: Text(
                     pokemon.eggGroups
-                        .map((egg) => egg.info.names["es"])
+                        .map((egg) => egg.info.names["es"] /*"eggname"*/)
                         .join(", "),
                     style: TextStyle(height: 0.8),
                   ),
                 )
               : Expanded(
                   flex: 3,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  child: Center(child: LinearProgressIndicator()),
                 )
           //Expanded(flex: 2, child: SizedBox()),
         ],

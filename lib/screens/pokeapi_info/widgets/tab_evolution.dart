@@ -142,6 +142,19 @@ class PokemonEvolution extends StatelessWidget {
           children: <Widget>[
             Text(
               "Evolution Chain",
+            ),
+          ],
+        ),
+      ),
+    );
+    return AnimatedBuilder(
+      animation: cardController,
+      child: Consumer<PokeapiModel>(
+        builder: (_, model, child) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "Evolution Chain",
               style: TextStyle(
                   fontWeight: FontWeight.bold, fontSize: 16, height: 0.8),
             ),

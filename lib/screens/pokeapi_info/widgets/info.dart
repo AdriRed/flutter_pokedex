@@ -45,6 +45,8 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
     super.dispose();
   }
 
+  bool _loaded = true;
+
   @override
   void initState() {
     _slideController =
@@ -69,6 +71,30 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
       textDiffLeft = targetTextPosition.dx - currentTextPosition.dx;
       textDiffTop = targetTextPosition.dy - currentTextPosition.dy;
     });
+
+    // var species = PokeapiModel.of(context).pokemonSpecies;
+    // _loaded = false;
+    // var future = null;
+    // if (!species.hasInfo) {
+    //   future = species
+    //       .getInfo()
+    //       .then((x) => x.defaultVariety.pokemon.getInfo())
+    //       .then((x) => Future.wait(x.types.map((type) => type.type.getInfo())));
+    // } else if (!species.info.defaultVariety.pokemon.hasInfo) {
+    //   future = species.info.defaultVariety.pokemon
+    //       .getInfo()
+    //       .then((x) => Future.wait(x.types.map((type) => type.type.getInfo())));
+    // } else if (!species.info.defaultVariety.pokemon.info.types
+    //     .every((x) => x.type.hasInfo)) {
+    //   future = Future.wait(species.info.defaultVariety.pokemon.info.types
+    //       .map((type) => type.type.getInfo()));
+    // }
+
+    // if (future != null) {
+    //   future.then(() => this.setState(() => _loaded = true));
+    // } else {
+    //   _loaded = true;
+    // }
 
     super.initState();
   }
@@ -178,14 +204,16 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
                 tag: pokemon.id,
                 child: Material(
                   color: Colors.transparent,
-                  child: Text(
-                    pokemon.id.toString(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                    ),
-                  ),
+                  child: pokemon == null
+                      ? LinearProgressIndicator()
+                      : Text(
+                          pokemon.id.toString(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 18,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -274,7 +302,13 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
                 PokeapiModel.of(context).setSelectedIndex(index);
               },
               itemBuilder: (context, index) => Hero(
-                tag: pokemons[index].info.defaultVariety.pokemon.info.hdSprite,
+                tag: pokemons[index]
+                        .info
+                        ?.defaultVariety
+                        ?.pokemon
+                        ?.info
+                        ?.hdSprite ??
+                    "not-loaded-specie-" + index.toString(),
                 child: AnimatedPadding(
                   duration: Duration(milliseconds: 600),
                   curve: Curves.easeOutQuint,
@@ -283,31 +317,50 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
                     bottom:
                         selectedIndex == index ? 0 : screenSize.height * 0.04,
                   ),
-                  child: CachedNetworkImage(
-                    imageUrl: pokemons[index]
-                        .info
-                        .defaultVariety
-                        .pokemon
-                        .info
-                        .hdSprite,
-                    placeholder: (ctx, str) => Image.asset(
-                      "assets/images/8bit-pokeball.png",
-                      filterQuality: FilterQuality.none,
-                      fit: BoxFit.contain,
-                      width: screenSize.height * 0.28,
-                      height: screenSize.height * 0.28,
-                      alignment: Alignment.bottomCenter,
-                      color: selectedIndex == index ? null : Colors.black26,
-                    ),
-                    placeholderFadeInDuration: Duration(milliseconds: 250),
-                    imageBuilder: (context, image) => Image(
-                      image: image,
-                      width: screenSize.height * 0.28,
-                      height: screenSize.height * 0.28,
-                      alignment: Alignment.bottomCenter,
-                      color: selectedIndex == index ? null : Colors.black26,
-                    ),
-                  ),
+                  child: pokemons[index]
+                              .info
+                              ?.defaultVariety
+                              ?.pokemon
+                              ?.info
+                              ?.hdSprite ==
+                          null
+                      ? Image.asset(
+                          "assets/images/8bit-pokeball.png",
+                          filterQuality: FilterQuality.none,
+                          fit: BoxFit.contain,
+                          width: screenSize.height * 0.28,
+                          height: screenSize.height * 0.28,
+                          alignment: Alignment.bottomCenter,
+                          color: selectedIndex == index ? null : Colors.black26,
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: pokemons[index]
+                              .info
+                              .defaultVariety
+                              .pokemon
+                              .info
+                              .hdSprite,
+                          placeholder: (ctx, str) => Image.asset(
+                            "assets/images/8bit-pokeball.png",
+                            filterQuality: FilterQuality.none,
+                            fit: BoxFit.contain,
+                            width: screenSize.height * 0.28,
+                            height: screenSize.height * 0.28,
+                            alignment: Alignment.bottomCenter,
+                            color:
+                                selectedIndex == index ? null : Colors.black26,
+                          ),
+                          placeholderFadeInDuration:
+                              Duration(milliseconds: 250),
+                          imageBuilder: (context, image) => Image(
+                            image: image,
+                            width: screenSize.height * 0.28,
+                            height: screenSize.height * 0.28,
+                            alignment: Alignment.bottomCenter,
+                            color:
+                                selectedIndex == index ? null : Colors.black26,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -378,9 +431,15 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
             children: <Widget>[
               _buildAppBar(),
               SizedBox(height: 9),
-              _buildPokemonName(model.pokemonSpecies.info),
-              SizedBox(height: 9),
-              _buildPokemonTypes(model.pokemonSpecies.info),
+              ...(_loaded
+                  ? [
+                      _buildPokemonName(model.pokemonSpecies.info),
+                      SizedBox(height: 9),
+                      _buildPokemonTypes(model.pokemonSpecies.info),
+                    ]
+                  : [
+                      CircularProgressIndicator(),
+                    ]),
               SizedBox(height: 25),
               _buildPokemonSlider(
                   context, model.pokemonSpecies.info, model.pokemons),
