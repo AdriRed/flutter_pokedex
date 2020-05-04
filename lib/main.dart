@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/models/pokemon.dart';
 import 'package:pokedex/screens/pokeapi_info/pokeapi_info.dart';
@@ -61,7 +62,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     preloadAssets(context);
-
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return MaterialApp(
       color: Colors.white,
       title: 'Flutter Demo',
