@@ -14,6 +14,8 @@ import '../../../widgets/animated_slide.dart';
 import '../../../widgets/pokemon_type.dart';
 import 'decoration_box.dart';
 
+import '../../../helpers/HelperMethods.dart';
+
 class PokemonOverallInfo extends StatefulWidget {
   const PokemonOverallInfo();
 
@@ -44,8 +46,6 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
 
     super.dispose();
   }
-
-  bool _loaded = true;
 
   @override
   void initState() {
@@ -179,11 +179,12 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
               return Transform.translate(
                 offset: Offset(textDiffLeft * value, textDiffTop * value),
                 child: Hero(
-                  tag: pokemon.names["es"],
+                  tag: pokemon?.names?.tryGetValue("es") ??
+                      "not-loaded-pokemon-name",
                   child: Material(
                     color: Colors.transparent,
                     child: Text(
-                      pokemon.names["es"],
+                      pokemon?.names?.tryGetValue("es") ?? "",
                       key: _currentTextKey,
                       style: TextStyle(
                         color: Colors.white,
@@ -201,19 +202,17 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
             child: AnimatedSlide(
               animation: _slideController,
               child: Hero(
-                tag: pokemon.id,
+                tag: pokemon?.id ?? "not-loaded-id",
                 child: Material(
                   color: Colors.transparent,
-                  child: pokemon == null
-                      ? LinearProgressIndicator()
-                      : Text(
-                          pokemon.id.toString(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 18,
-                          ),
-                        ),
+                  child: Text(
+                    pokemon?.id?.toString() ?? "",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -238,17 +237,19 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Row(
-              children: pokemon.defaultVariety.pokemon.info.types
-                  .map((type) => Hero(
-                      tag: type,
-                      child: PokemonApiCardType(type.type.info.names["es"],
-                          large: true)))
-                  .toList(),
+              children: pokemon?.defaultVariety?.pokemon?.info?.types
+                      ?.map((type) => Hero(
+                          tag: type,
+                          child: PokemonApiCardType(
+                              type?.type?.info?.names?.tryGetValue("es") ?? "",
+                              large: true)))
+                      ?.toList() ??
+                  [PokemonApiCardType("", large: true)],
             ),
             AnimatedSlide(
               animation: _slideController,
               child: Text(
-                pokemon.genera["es"],
+                pokemon?.genera?.tryGetValue("es") ?? "",
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
             ),
@@ -431,15 +432,9 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
             children: <Widget>[
               _buildAppBar(),
               SizedBox(height: 9),
-              ...(_loaded
-                  ? [
-                      _buildPokemonName(model.pokemonSpecies.info),
-                      SizedBox(height: 9),
-                      _buildPokemonTypes(model.pokemonSpecies.info),
-                    ]
-                  : [
-                      CircularProgressIndicator(),
-                    ]),
+              _buildPokemonName(model.pokemonSpecies.info),
+              SizedBox(height: 9),
+              _buildPokemonTypes(model.pokemonSpecies.info),
               SizedBox(height: 25),
               _buildPokemonSlider(
                   context, model.pokemonSpecies.info, model.pokemons),

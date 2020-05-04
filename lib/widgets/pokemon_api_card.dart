@@ -237,19 +237,23 @@ class PokemonApiCardType extends StatelessWidget {
           horizontal: large ? 19 : 12,
           vertical: large ? 6 : 4,
         ),
-        decoration: ShapeDecoration(
-          shape: StadiumBorder(),
-          color: Colors.white.withOpacity(0.2),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: large ? 12 : 8,
-            height: 0.8,
-            fontWeight: large ? FontWeight.bold : FontWeight.normal,
-            color: Colors.white,
-          ),
-        ),
+        decoration: label == ""
+            ? null
+            : ShapeDecoration(
+                shape: StadiumBorder(),
+                color: Colors.white.withOpacity(0.2),
+              ),
+        child: label == ""
+            ? Container(height: large ? 12 : 8)
+            : Text(
+                label,
+                style: TextStyle(
+                  fontSize: large ? 12 : 8,
+                  height: 0.8,
+                  fontWeight: large ? FontWeight.bold : FontWeight.normal,
+                  color: Colors.white,
+                ),
+              ),
       ),
     );
   }

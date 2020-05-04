@@ -11,6 +11,8 @@ import '../../widgets/slide_up_panel.dart';
 import 'widgets/info.dart';
 import 'widgets/tab.dart';
 
+import '../../helpers/HelperMethods.dart';
+
 class PokeapiInfo extends StatefulWidget {
   const PokeapiInfo();
 
@@ -59,20 +61,25 @@ class _PokeapiInfoState extends State<PokeapiInfo>
     });
 
     PokeapiModel.of(context).addListener(changePokemon);
-    _loadedStats = false;
-    changePokemon();
+    _loaded = false;
     super.initState();
   }
 
-  bool _loadedStats;
+  bool _loaded;
 
   void concatToFuture(Future f, Function after) {
     log("concat " + after.toString());
     f.then(after);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // _loadedStats = false;
+    // changePokemon();
+  }
+
   void changePokemon() {
-    this.setState(() => _loadedStats = false);
     var specie = PokeapiModel.of(context).pokemonSpecies;
     Future fut = Future.value();
 
@@ -129,7 +136,7 @@ class _PokeapiInfoState extends State<PokeapiInfo>
 
     fut.then((_) {
       log("loaded this");
-      this.setState(() => _loadedStats = true);
+      this.setState(() => _loaded = true);
     });
   }
 
@@ -142,16 +149,14 @@ class _PokeapiInfoState extends State<PokeapiInfo>
         child: Scaffold(
           body: Consumer<PokeapiModel>(
             builder: (_, model, child) {
-              bool arrayAvailable = model.pokemonSpecies.info?.defaultVariety
-                      ?.pokemon?.info?.types !=
-                  null;
-
               return AnimatedContainer(
                 duration: Duration(milliseconds: 300),
-                color: arrayAvailable &&
-                        model.pokemonSpecies.info.defaultVariety.pokemon.info
-                                .types[0].type.info !=
-                            null
+                color: model.pokemonSpecies.info?.defaultVariety?.pokemon?.info
+                            ?.types
+                            ?.tryGet(0)
+                            ?.type
+                            ?.info !=
+                        null
                     ? AppColors.types[model.pokemonSpecies.info.defaultVariety
                             .pokemon.info.types[0].type.info.id -
                         1]
@@ -160,11 +165,13 @@ class _PokeapiInfoState extends State<PokeapiInfo>
                   children: <Widget>[
                     AnimatedBuilder(
                       animation: _cardHeightController,
-                      child: _loadedStats ||
-                              (arrayAvailable &&
-                                  model.pokemonSpecies.info.defaultVariety
-                                          .pokemon.info.types[0].type.info !=
-                                      null)
+                      child: model.pokemonSpecies.info?.defaultVariety?.pokemon
+                                  ?.info?.types
+                                  ?.tryGet(0)
+                                  ?.type
+                                  ?.info !=
+                              null
+                          // child: false
                           ? PokemonTabInfo()
                           : Center(
                               child: CircularProgressIndicator(),
