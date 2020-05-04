@@ -72,30 +72,6 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
       textDiffTop = targetTextPosition.dy - currentTextPosition.dy;
     });
 
-    // var species = PokeapiModel.of(context).pokemonSpecies;
-    // _loaded = false;
-    // var future = null;
-    // if (!species.hasInfo) {
-    //   future = species
-    //       .getInfo()
-    //       .then((x) => x.defaultVariety.pokemon.getInfo())
-    //       .then((x) => Future.wait(x.types.map((type) => type.type.getInfo())));
-    // } else if (!species.info.defaultVariety.pokemon.hasInfo) {
-    //   future = species.info.defaultVariety.pokemon
-    //       .getInfo()
-    //       .then((x) => Future.wait(x.types.map((type) => type.type.getInfo())));
-    // } else if (!species.info.defaultVariety.pokemon.info.types
-    //     .every((x) => x.type.hasInfo)) {
-    //   future = Future.wait(species.info.defaultVariety.pokemon.info.types
-    //       .map((type) => type.type.getInfo()));
-    // }
-
-    // if (future != null) {
-    //   future.then(() => this.setState(() => _loaded = true));
-    // } else {
-    //   _loaded = true;
-    // }
-
     super.initState();
   }
 

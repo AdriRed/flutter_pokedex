@@ -235,7 +235,7 @@ class PokemonApiCardType extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: large ? 19 : 12,
-          vertical: large ? 6 : 4,
+          vertical: large ? 6 : 2,
         ),
         decoration: label == ""
             ? null
@@ -249,7 +249,7 @@ class PokemonApiCardType extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: large ? 12 : 8,
-                  height: 0.8,
+                  height: 1.3,
                   fontWeight: large ? FontWeight.bold : FontWeight.normal,
                   color: Colors.white,
                 ),

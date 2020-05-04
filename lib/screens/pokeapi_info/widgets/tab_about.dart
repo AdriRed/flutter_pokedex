@@ -221,8 +221,9 @@ class _PokeapiAboutState extends State<PokeapiAbout> {
                   )
                 : Column(
                     children: <Widget>[
-                      _buildDescription(
-                          model.pokemonSpecies.info.descriptionEntries["es"]),
+                      _buildDescription(model
+                          .pokemonSpecies.info.descriptionEntries["es"]
+                          .replaceAll("\n", " ")),
                       SizedBox(height: 28),
                       _buildHeightWeight(
                           model.pokemonSpecies.info.defaultVariety.pokemon.info
