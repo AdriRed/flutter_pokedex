@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:pokedex/apimodels/Pokemon.dart';
+import 'package:pokedex/apimodels/PokemonSpecies.dart';
 import 'package:pokedex/configs/AppColors.dart';
+import 'package:pokedex/consumers/ApiConsumer.dart';
 import 'package:pokedex/consumers/PokemonLoader.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/pokemon.dart';
 import '../../widgets/slide_up_panel.dart';
 import 'widgets/info.dart';
 import 'widgets/tab.dart';
@@ -79,12 +82,8 @@ class _PokeapiInfoState extends State<PokeapiInfo>
     // changePokemon();
   }
 
-  void changePokemon() {
-    var specie = PokeapiModel.of(context).pokemonSpecies;
-    // Future fut = Future.value();
-
-    // specie.info ?? fut.then((_) => specie.getInfo());
-    specie
+  Future<Pokemon> loadEverything(ApiConsumer<PokemonSpecies> species) {
+    return species
         .getInfo()
         .then((x) =>
             Future.wait(x.eggGroups.map((egg) => egg.getInfo())).then((_) => x))
@@ -96,11 +95,23 @@ class _PokeapiInfoState extends State<PokeapiInfo>
         .then((x) => Future.wait(x.stats.map((stat) => stat.stat.getInfo()))
             .then((_) => x))
         .then((x) => Future.wait(x.types.map((type) => type.type.getInfo()))
-            .then((_) => x))
-        .then((x) {
+            .then((_) => x));
+  }
+
+  void changePokemon() {
+    var specie = PokeapiModel.of(context).pokemonSpecies;
+    // Future fut = Future.value();
+
+    // specie.info ?? fut.then((_) => specie.getInfo());
+    loadEverything(specie).then((x) {
       log("loaded " + x.id.toString());
       this.setState(() => _loaded = true);
     });
+
+    var actual = PokeapiModel.of(context).index;
+    var next = PokeapiModel.of(context).pokemons.getRange(actual, actual + 10);
+    next.forEach((x) => loadEverything(x)
+        .then((res) => log("loaded next " + res.id.toString())));
     // // specie.info?.defaultVariety?.pokemon?.info ??
     //     fut.then((_) => specie.info.defaultVariety.pokemon.getInfo());
     //     // concatToFuture(
