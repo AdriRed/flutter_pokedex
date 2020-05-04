@@ -14,6 +14,8 @@ import '../../../widgets/animated_slide.dart';
 import '../../../widgets/pokemon_type.dart';
 import 'decoration_box.dart';
 
+import '../../../helpers/HelperMethods.dart';
+
 class PokemonOverallInfo extends StatefulWidget {
   const PokemonOverallInfo();
 
@@ -153,11 +155,12 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
               return Transform.translate(
                 offset: Offset(textDiffLeft * value, textDiffTop * value),
                 child: Hero(
-                  tag: pokemon.names["es"],
+                  tag: pokemon?.names?.tryGetValue("es") ??
+                      "not-loaded-pokemon-name",
                   child: Material(
                     color: Colors.transparent,
                     child: Text(
-                      pokemon.names["es"],
+                      pokemon?.names?.tryGetValue("es") ?? "",
                       key: _currentTextKey,
                       style: TextStyle(
                         color: Colors.white,
@@ -175,11 +178,11 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
             child: AnimatedSlide(
               animation: _slideController,
               child: Hero(
-                tag: pokemon.id,
+                tag: pokemon?.id ?? "not-loaded-id",
                 child: Material(
                   color: Colors.transparent,
                   child: Text(
-                    pokemon.id.toString(),
+                    pokemon?.id?.toString() ?? "",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w900,
@@ -210,17 +213,19 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Row(
-              children: pokemon.defaultVariety.pokemon.info.types
-                  .map((type) => Hero(
-                      tag: type,
-                      child: PokemonApiCardType(type.type.info.names["es"],
-                          large: true)))
-                  .toList(),
+              children: pokemon?.defaultVariety?.pokemon?.info?.types
+                      ?.map((type) => Hero(
+                          tag: type,
+                          child: PokemonApiCardType(
+                              type?.type?.info?.names?.tryGetValue("es") ?? "",
+                              large: true)))
+                      ?.toList() ??
+                  [PokemonApiCardType("", large: true)],
             ),
             AnimatedSlide(
               animation: _slideController,
               child: Text(
-                pokemon.genera["es"],
+                pokemon?.genera?.tryGetValue("es") ?? "",
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
             ),
@@ -274,7 +279,13 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
                 PokeapiModel.of(context).setSelectedIndex(index);
               },
               itemBuilder: (context, index) => Hero(
-                tag: pokemons[index].info.defaultVariety.pokemon.info.hdSprite,
+                tag: pokemons[index]
+                        .info
+                        ?.defaultVariety
+                        ?.pokemon
+                        ?.info
+                        ?.hdSprite ??
+                    "not-loaded-specie-" + index.toString(),
                 child: AnimatedPadding(
                   duration: Duration(milliseconds: 600),
                   curve: Curves.easeOutQuint,
@@ -283,31 +294,50 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
                     bottom:
                         selectedIndex == index ? 0 : screenSize.height * 0.04,
                   ),
-                  child: CachedNetworkImage(
-                    imageUrl: pokemons[index]
-                        .info
-                        .defaultVariety
-                        .pokemon
-                        .info
-                        .hdSprite,
-                    placeholder: (ctx, str) => Image.asset(
-                      "assets/images/8bit-pokeball.png",
-                      filterQuality: FilterQuality.none,
-                      fit: BoxFit.contain,
-                      width: screenSize.height * 0.28,
-                      height: screenSize.height * 0.28,
-                      alignment: Alignment.bottomCenter,
-                      color: selectedIndex == index ? null : Colors.black26,
-                    ),
-                    placeholderFadeInDuration: Duration(milliseconds: 250),
-                    imageBuilder: (context, image) => Image(
-                      image: image,
-                      width: screenSize.height * 0.28,
-                      height: screenSize.height * 0.28,
-                      alignment: Alignment.bottomCenter,
-                      color: selectedIndex == index ? null : Colors.black26,
-                    ),
-                  ),
+                  child: pokemons[index]
+                              .info
+                              ?.defaultVariety
+                              ?.pokemon
+                              ?.info
+                              ?.hdSprite ==
+                          null
+                      ? Image.asset(
+                          "assets/images/8bit-pokeball.png",
+                          filterQuality: FilterQuality.none,
+                          fit: BoxFit.contain,
+                          width: screenSize.height * 0.28,
+                          height: screenSize.height * 0.28,
+                          alignment: Alignment.bottomCenter,
+                          color: selectedIndex == index ? null : Colors.black26,
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: pokemons[index]
+                              .info
+                              .defaultVariety
+                              .pokemon
+                              .info
+                              .hdSprite,
+                          placeholder: (ctx, str) => Image.asset(
+                            "assets/images/8bit-pokeball.png",
+                            filterQuality: FilterQuality.none,
+                            fit: BoxFit.contain,
+                            width: screenSize.height * 0.28,
+                            height: screenSize.height * 0.28,
+                            alignment: Alignment.bottomCenter,
+                            color:
+                                selectedIndex == index ? null : Colors.black26,
+                          ),
+                          placeholderFadeInDuration:
+                              Duration(milliseconds: 250),
+                          imageBuilder: (context, image) => Image(
+                            image: image,
+                            width: screenSize.height * 0.28,
+                            height: screenSize.height * 0.28,
+                            alignment: Alignment.bottomCenter,
+                            color:
+                                selectedIndex == index ? null : Colors.black26,
+                          ),
+                        ),
                 ),
               ),
             ),

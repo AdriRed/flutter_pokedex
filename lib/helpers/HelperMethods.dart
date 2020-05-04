@@ -23,3 +23,17 @@ extension DynamicListExtension on List<dynamic> {
     return superlist;
   }
 }
+
+extension MapExtensions<K, V> on Map<K, V> {
+  V tryGetValue(K key) {
+    if (this == null || !this.containsKey(key)) return null;
+    return this[key];
+  }
+}
+
+extension ListExtensions<V> on List<V> {
+  V tryGet(int index) {
+    if (this == null) return null;
+    return this[index];
+  }
+}

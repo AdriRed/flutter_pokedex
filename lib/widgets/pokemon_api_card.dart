@@ -145,7 +145,7 @@ class _PokemonApiCardState extends State<PokemonApiCard> {
         top: 10,
         right: 14,
         child: Text(
-          _formattedPokeIndex(this.index + 1),
+          _formattedPokeIndex(this.index),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -235,21 +235,25 @@ class PokemonApiCardType extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: large ? 19 : 12,
-          vertical: large ? 6 : 4,
+          vertical: large ? 6 : 2,
         ),
-        decoration: ShapeDecoration(
-          shape: StadiumBorder(),
-          color: Colors.white.withOpacity(0.2),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: large ? 12 : 8,
-            height: 0.8,
-            fontWeight: large ? FontWeight.bold : FontWeight.normal,
-            color: Colors.white,
-          ),
-        ),
+        decoration: label == ""
+            ? null
+            : ShapeDecoration(
+                shape: StadiumBorder(),
+                color: Colors.white.withOpacity(0.2),
+              ),
+        child: label == ""
+            ? Container(height: large ? 12 : 8)
+            : Text(
+                label,
+                style: TextStyle(
+                  fontSize: large ? 12 : 8,
+                  height: 1.3,
+                  fontWeight: large ? FontWeight.bold : FontWeight.normal,
+                  color: Colors.white,
+                ),
+              ),
       ),
     );
   }

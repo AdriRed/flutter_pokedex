@@ -50,7 +50,7 @@ class ApiConsumer<T extends Model> {
         _locker.unlock();
         return await getInfo();
       }
-
+      log("downloading " + url.toString());
       final converted = await respbody.transform(utf8.decoder).join();
       final decoded = json.decode(converted);
       T object = new Model.fromJSON(T, decoded);
@@ -82,7 +82,6 @@ class Repository {
   }
 
   void add(String k, dynamic v) {
-    log(k);
     _repo.putIfAbsent(k, () => v);
   }
 

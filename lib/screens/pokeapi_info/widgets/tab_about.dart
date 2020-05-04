@@ -15,29 +15,29 @@ class PokeapiAbout extends StatefulWidget {
 }
 
 class _PokeapiAboutState extends State<PokeapiAbout> {
-  bool _breedingLoaded;
+  // bool _breedingLoaded;
 
-  @override
-  void initState() {
-    super.initState();
-    _breedingLoaded = PokeapiModel.of(context)
-        .pokemonSpecies
-        .info
-        .eggGroups
-        .every((x) => x.hasInfo);
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _breedingLoaded = PokeapiModel.of(context)
+  //       .pokemonSpecies
+  //       .info
+  //       .eggGroups
+  //       .every((x) => x.hasInfo);
+  // }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_breedingLoaded)
-      Future.wait(PokeapiModel.of(context)
-              .pokemonSpecies
-              .info
-              .eggGroups
-              .map((x) => x.getInfo()))
-          .then((_) => this.setState(() => _breedingLoaded = true));
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   if (!_breedingLoaded)
+  //     Future.wait(PokeapiModel.of(context)
+  //             .pokemonSpecies
+  //             .info
+  //             .eggGroups
+  //             .map((x) => x.getInfo()))
+  //         .then((_) => this.setState(() => _breedingLoaded = true));
+  // }
 
   Widget _buildSection(String text, {List<Widget> children, Widget child}) {
     return Column(
@@ -159,21 +159,20 @@ class _PokeapiAboutState extends State<PokeapiAbout> {
       Row(
         children: <Widget>[
           Expanded(child: _buildLabel("Egg Groups")),
-          _breedingLoaded
+          // _breedingLoaded
+          pokemon.eggGroups.every((x) => x.hasInfo)
               ? Expanded(
                   flex: 3,
                   child: Text(
                     pokemon.eggGroups
-                        .map((egg) => egg.info.names["es"])
+                        .map((egg) => egg.info.names["es"] /*"eggname"*/)
                         .join(", "),
                     style: TextStyle(height: 0.8),
                   ),
                 )
               : Expanded(
                   flex: 3,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  child: Center(child: LinearProgressIndicator()),
                 )
           //Expanded(flex: 2, child: SizedBox()),
         ],
@@ -215,26 +214,34 @@ class _PokeapiAboutState extends State<PokeapiAbout> {
     return AnimatedBuilder(
       animation: cardController,
       child: Consumer<PokeapiModel>(
-        builder: (_, model, child) => Column(
-          children: <Widget>[
-            _buildDescription(
-                model.pokemonSpecies.info.descriptionEntries["es"]),
-            SizedBox(height: 28),
-            _buildHeightWeight(
-                model.pokemonSpecies.info.defaultVariety.pokemon.info.height
-                    .toString(),
-                model.pokemonSpecies.info.defaultVariety.pokemon.info.weight
-                    .toString()),
-            SizedBox(height: 31),
-            _buildBreeding(model.pokemonSpecies.info),
-            SizedBox(height: 35),
-            _buildLocation(),
-            SizedBox(height: 26),
-            _buildTraining(model
-                .pokemonSpecies.info.defaultVariety.pokemon.info.baseExperience
-                .toString())
-          ],
-        ),
+        builder: (_, model, child) =>
+            model.pokemonSpecies?.info?.defaultVariety?.pokemon?.info == null
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Column(
+                    children: <Widget>[
+                      _buildDescription(model
+                          .pokemonSpecies.info.descriptionEntries["es"]
+                          .replaceAll("\n", " ")),
+                      SizedBox(height: 28),
+                      _buildHeightWeight(
+                          model.pokemonSpecies.info.defaultVariety.pokemon.info
+                              .height
+                              .toString(),
+                          model.pokemonSpecies.info.defaultVariety.pokemon.info
+                              .weight
+                              .toString()),
+                      SizedBox(height: 31),
+                      _buildBreeding(model.pokemonSpecies.info),
+                      SizedBox(height: 35),
+                      _buildLocation(),
+                      SizedBox(height: 26),
+                      _buildTraining(model.pokemonSpecies.info.defaultVariety
+                          .pokemon.info.baseExperience
+                          .toString())
+                    ],
+                  ),
       ),
       builder: (context, child) {
         final scrollable = cardController.value.floor() == 1;
