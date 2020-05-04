@@ -75,13 +75,6 @@ class _PokeapiInfoState extends State<PokeapiInfo>
     f.then(after);
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // _loadedStats = false;
-    // changePokemon();
-  }
-
   Future<Pokemon> loadEverything(ApiConsumer<PokemonSpecies> species) {
     return species
         .getInfo()

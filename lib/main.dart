@@ -4,6 +4,7 @@ import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/models/pokemon.dart';
 import 'package:pokedex/screens/pokeapi_info/pokeapi_info.dart';
 import 'package:pokedex/screens/pokedex_api/pokedex_api.dart';
+import 'package:pokedex/screens/user/user_page.dart';
 import 'package:provider/provider.dart';
 
 import 'configs/AppColors.dart';
@@ -42,6 +43,9 @@ class MyApp extends StatelessWidget {
 
       case '/pokeapi-info':
         return FadeRoute(page: PokeapiInfo());
+
+      case '/user':
+        return FadeRoute(page: UserPage());
 
       default:
         return null;
