@@ -116,28 +116,35 @@ class _PokemonBaseStatsState extends State<PokemonBaseStats>
     return Container(
       padding: EdgeInsets.all(24),
       child: Consumer<PokeapiModel>(
-        builder: (_, model, child) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            ...generateStatWidget(
-                model.pokemonSpecies.info.defaultVariety.pokemon.info),
-            SizedBox(height: 27),
-            Text(
-              "Type defenses",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                height: 0.8,
+        builder: (_, model, child) => !(model
+                    .pokemonSpecies?.info?.defaultVariety?.pokemon?.info?.stats
+                    ?.every((x) => x.stat.hasInfo) ??
+                false)
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  ...generateStatWidget(
+                      model.pokemonSpecies.info.defaultVariety.pokemon.info),
+                  SizedBox(height: 27),
+                  Text(
+                    "Type defenses",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      height: 0.8,
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Text(
+                    "The effectiveness of each type on ${model.pokemonSpecies.info.names["es"]}.",
+                    style: TextStyle(color: AppColors.black.withOpacity(0.6)),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 15),
-            Text(
-              "The effectiveness of each type on ${model.pokemonSpecies.info.names["es"]}.",
-              style: TextStyle(color: AppColors.black.withOpacity(0.6)),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -81,63 +81,79 @@ class _PokeapiInfoState extends State<PokeapiInfo>
 
   void changePokemon() {
     var specie = PokeapiModel.of(context).pokemonSpecies;
-    Future fut = Future.value();
+    // Future fut = Future.value();
 
-    specie.info ?? fut.then((_) => specie.getInfo());
-
-    specie.info?.defaultVariety?.pokemon?.info ??
-        //fut.then((_) => specie.info.defaultVariety.pokemon.getInfo());
-        concatToFuture(
-            fut, (_) => specie.info.defaultVariety.pokemon.getInfo());
-
-    specie.info?.eggGroups?.every((x) => x.hasInfo) ?? false
-        ? true
-        : null ??
-            // fut.then((_) =>
-            //     Future.wait(specie.info.eggGroups.map((x) => x.getInfo())));
-            concatToFuture(
-                fut,
-                (_) =>
-                    Future.wait(specie.info.eggGroups.map((x) => x.getInfo())));
-
-    specie.info?.evolutionChain?.info ??
-        // fut.then((_) => PokemonLoader.futureEvolution(specie.info));
-        concatToFuture(
-            fut,
-            (_) => specie.info.evolutionChain
-                .getInfo()
-                .then((chain) => chain.chain.getAllInfo()));
-
-    specie.info?.defaultVariety?.pokemon?.info?.stats
-                ?.every((x) => x.stat.hasInfo) ??
-            false
-        ? true
-        : null ??
-            // fut.then((_) => Future.wait(specie
-            //     .info.defaultVariety.pokemon.info.stats
-            //     .map((x) => x.stat.getInfo())));
-            concatToFuture(
-                fut,
-                (_) => Future.wait(specie.info.defaultVariety.pokemon.info.stats
-                    .map((x) => x.stat.getInfo())));
-
-    specie.info?.defaultVariety?.pokemon?.info?.types
-                ?.every((x) => x.type.hasInfo) ??
-            false
-        ? true
-        : null ??
-            // fut.then((_) => Future.wait(specie
-            //     .info.defaultVariety.pokemon.info.types
-            //     .map((x) => x.type.getInfo())));
-            concatToFuture(
-                fut,
-                (_) => Future.wait(specie.info.defaultVariety.pokemon.info.types
-                    .map((x) => x.type.getInfo())));
-
-    fut.then((_) {
-      log("loaded this");
+    // specie.info ?? fut.then((_) => specie.getInfo());
+    specie
+        .getInfo()
+        .then((x) =>
+            Future.wait(x.eggGroups.map((egg) => egg.getInfo())).then((_) => x))
+        .then((x) => x.evolutionChain
+            .getInfo()
+            .then((evo) => Future.wait(evo.chain.getAllInfo()))
+            .then((_) => x))
+        .then((x) => x.defaultVariety.pokemon.getInfo())
+        .then((x) => Future.wait(x.stats.map((stat) => stat.stat.getInfo()))
+            .then((_) => x))
+        .then((x) => Future.wait(x.types.map((type) => type.type.getInfo()))
+            .then((_) => x))
+        .then((x) {
+      log("loaded " + x.id.toString());
       this.setState(() => _loaded = true);
     });
+    // // specie.info?.defaultVariety?.pokemon?.info ??
+    //     fut.then((_) => specie.info.defaultVariety.pokemon.getInfo());
+    //     // concatToFuture(
+    //     //     fut, (_) => specie.info.defaultVariety.pokemon.getInfo());
+
+    // // specie.info?.eggGroups?.every((x) => x.hasInfo) ?? false
+    // //     ? true
+    // //     : null ??
+    //         fut.then((_) =>
+    //             Future.wait(specie.info.eggGroups.map((x) => x.getInfo())));
+    //         // concatToFuture(
+    //         //     fut,
+    //         //     (_) =>
+    //         //         Future.wait(specie.info.eggGroups.map((x) => x.getInfo())));
+
+    // // specie.info?.evolutionChain?.info ??
+    //     fut.then((_) => PokemonLoader.futureEvolution(specie.info));
+    //     // concatToFuture(
+    //     //     fut,
+    //     //     (_) => specie.info.evolutionChain
+    //     //         .getInfo()
+    //     //         .then((chain) => chain.chain.getAllInfo()));
+
+    // // specie.info?.defaultVariety?.pokemon?.info?.stats
+    // //             ?.every((x) => x.stat.hasInfo) ??
+    // //         false
+    // //     ? true
+    // //     : null ??
+    //         fut.then((_) => Future.wait(specie
+    //             .info.defaultVariety.pokemon.info.stats
+    //             .map((x) => x.stat.getInfo())));
+    //         // concatToFuture(
+    //         //     fut,
+    //         //     (_) => Future.wait(specie.info.defaultVariety.pokemon.info.stats
+    //         //         .map((x) => x.stat.getInfo())));
+
+    // // specie.info?.defaultVariety?.pokemon?.info?.types
+    // //             ?.every((x) => x.type.hasInfo) ??
+    // //         false
+    // //     ? true
+    // //     : null ??
+    //         fut.then((_) => Future.wait(specie
+    //             .info.defaultVariety.pokemon.info.types
+    //             .map((x) => x.type.getInfo())));
+    //         // concatToFuture(
+    //         //     fut,
+    //         //     (_) => Future.wait(specie.info.defaultVariety.pokemon.info.types
+    //         //         .map((x) => x.type.getInfo())));
+
+    // fut.then((x) {
+    //   log("loaded");
+    //   this.setState(() => _loaded = true);
+    // });
   }
 
   @override
@@ -165,17 +181,19 @@ class _PokeapiInfoState extends State<PokeapiInfo>
                   children: <Widget>[
                     AnimatedBuilder(
                       animation: _cardHeightController,
-                      child: model.pokemonSpecies.info?.defaultVariety?.pokemon
-                                  ?.info?.types
-                                  ?.tryGet(0)
-                                  ?.type
-                                  ?.info !=
-                              null
-                          // child: false
-                          ? PokemonTabInfo()
-                          : Center(
-                              child: CircularProgressIndicator(),
-                            ),
+                      child: PokemonTabInfo(),
+                      // child: model.pokemonSpecies.info?.defaultVariety?.pokemon
+                      //             ?.info?.types
+                      //             ?.tryGet(0)
+                      //             ?.type
+                      //             ?.info !=
+                      //         null
+                      //     // child: false
+                      //     ?
+                      //     PokemonTabInfo()
+                      //     : Center(
+                      //         child: CircularProgressIndicator(),
+                      //       ),
                       builder: (context, child) {
                         return SlidingUpPanel(
                           controller: _cardController,

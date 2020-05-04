@@ -214,26 +214,33 @@ class _PokeapiAboutState extends State<PokeapiAbout> {
     return AnimatedBuilder(
       animation: cardController,
       child: Consumer<PokeapiModel>(
-        builder: (_, model, child) => Column(
-          children: <Widget>[
-            _buildDescription(
-                model.pokemonSpecies.info.descriptionEntries["es"]),
-            SizedBox(height: 28),
-            _buildHeightWeight(
-                model.pokemonSpecies.info.defaultVariety.pokemon.info.height
-                    .toString(),
-                model.pokemonSpecies.info.defaultVariety.pokemon.info.weight
-                    .toString()),
-            SizedBox(height: 31),
-            _buildBreeding(model.pokemonSpecies.info),
-            SizedBox(height: 35),
-            _buildLocation(),
-            SizedBox(height: 26),
-            _buildTraining(model
-                .pokemonSpecies.info.defaultVariety.pokemon.info.baseExperience
-                .toString())
-          ],
-        ),
+        builder: (_, model, child) =>
+            model.pokemonSpecies?.info?.defaultVariety?.pokemon?.info == null
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Column(
+                    children: <Widget>[
+                      _buildDescription(
+                          model.pokemonSpecies.info.descriptionEntries["es"]),
+                      SizedBox(height: 28),
+                      _buildHeightWeight(
+                          model.pokemonSpecies.info.defaultVariety.pokemon.info
+                              .height
+                              .toString(),
+                          model.pokemonSpecies.info.defaultVariety.pokemon.info
+                              .weight
+                              .toString()),
+                      SizedBox(height: 31),
+                      _buildBreeding(model.pokemonSpecies.info),
+                      SizedBox(height: 35),
+                      _buildLocation(),
+                      SizedBox(height: 26),
+                      _buildTraining(model.pokemonSpecies.info.defaultVariety
+                          .pokemon.info.baseExperience
+                          .toString())
+                    ],
+                  ),
       ),
       builder: (context, child) {
         final scrollable = cardController.value.floor() == 1;

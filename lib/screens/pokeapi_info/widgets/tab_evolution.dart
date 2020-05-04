@@ -146,6 +146,17 @@ class PokemonEvolution extends StatelessWidget {
           ],
         ),
       ),
+      builder: (context, widget) {
+        final scrollable = cardController.value.floor() == 1;
+
+        return SingleChildScrollView(
+          physics: scrollable
+              ? BouncingScrollPhysics()
+              : NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(vertical: 31, horizontal: 28),
+          child: widget,
+        );
+      },
     );
     return AnimatedBuilder(
       animation: cardController,
