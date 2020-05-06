@@ -14,9 +14,10 @@ class UserPage extends StatefulWidget {
   _UserPageState createState() => _UserPageState();
 }
 
-class _UserPageState extends State<UserPage> {
+class _UserPageState extends State<UserPage> with TickerProviderStateMixin {
   double _cardHeight;
 
+  AnimationController _animationController;
   static const EdgeInsets margins = EdgeInsets.symmetric(horizontal: 28);
   static const double _appBarHorizontalPadding = 28.0;
   static const double _appBarTopPadding = 30.0;
@@ -26,11 +27,15 @@ class _UserPageState extends State<UserPage> {
 
   @override
   void dispose() {
+    _animationController?.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(seconds: 5));
+    _animationController.repeat(reverse: true);
     _cardHeight = 0;
     _creating = false;
     super.initState();
@@ -62,9 +67,6 @@ class _UserPageState extends State<UserPage> {
               fontWeight: FontWeight.w900,
             ),
           ),
-        ),
-        SizedBox(
-          height: 50,
         )
       ],
     );
@@ -207,19 +209,71 @@ class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    Size squareSize = Size(screenWidth * 0.9, screenHeight * 0.3);
     _cardHeight = screenHeight * UserPage.cardHeightFraction;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: Stack(
         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Container(
+          Align(
             alignment: Alignment.topCenter,
             child: _buildCard(),
           ),
           Positioned.fill(
-            top: screenHeight * 0.30,
+            top: screenHeight * 0.27,
             child: _form(context),
+          ),
+          Positioned.fill(
+            top: screenHeight * 0.5,
+            bottom: screenHeight * 0.01,
+            left: screenWidth * 0.01,
+            right: screenWidth * 0.01,
+            child: Stack(
+              children: <Widget>[
+                RelativePositionedTransition(
+                  child: Image.asset(
+                    "assets/images/oak.png",
+                    color: AppColors.black.withAlpha(20),
+                    height: screenHeight * 0.12,
+                  ),
+                  size: squareSize,
+                  rect: RectTween(
+                    begin: Rect.fromLTRB(20, 20, 80, 20),
+                    end: Rect.fromLTRB(120, 200, 200, 200),
+                  ).animate(_animationController),
+                ),
+                RelativePositionedTransition(
+                  child: Image.asset(
+                    "assets/images/bulbasaur.png",
+                    color: AppColors.black.withAlpha(20),
+                    height: screenHeight * 0.05,
+                  ),
+                  size: squareSize,
+                  rect: RectTween(
+                    begin: Rect.fromLTRB(200, 200, 200, 120),
+                    end: Rect.fromLTRB(80, 80, 80, 80),
+                  ).animate(_animationController),
+                ),
+                // RelativePositionedTransition(
+                //   child: Image.asset(
+                //     "assets/images/charmander.png",
+                //     color: AppColors.black.withAlpha(20),
+                //     height: screenHeight * 0.05,
+                //   ),
+                // ),
+                // RelativePositionedTransition(
+                //   rect: ,
+                //   child: Image.asset(
+                //     "assets/images/squirtle.png",
+                //     color: AppColors.black.withAlpha(20),
+                //     height: screenHeight * 0.05,
+                //   ),
+                // )
+              ],
+            ),
           ),
         ],
       ),
