@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/configs/AppColors.dart';
+import 'package:pokedex/services/login.service.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/expanded_section.dart';
 
@@ -155,7 +156,9 @@ class _UserPageState extends State<UserPage> with TickerProviderStateMixin {
                 fontSize: 15,
               ),
             ),
-            onPressed: () => {log("pressed")},
+            onPressed: () {
+              LoginHelper.login(_user, _password);
+            },
             textTheme: ButtonTextTheme.accent,
             borderSide: BorderSide(
               color: AppColors.blue,
