@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math' as Math;
 
 import 'package:flutter/material.dart';
 import 'package:pokedex/apimodels/Pokemon.dart';
@@ -105,10 +106,12 @@ class _PokeapiInfoState extends State<PokeapiInfo>
       log("loaded " + x.id.toString());
       this.setState(() => _loaded = true);
     });
-
+    var list = PokeapiModel.of(context).pokemons;
     var actual = PokeapiModel.of(context).index;
-    var next = PokeapiModel.of(context).pokemons.getRange(actual, actual + 10);
-    next.forEach((x) => loadEverything(x)
+    var next = list.getRange(actual, Math.min(actual + 5, list.length));
+    var prev = list.getRange(Math.max(0, actual - 5), actual);
+
+    next.followedBy(prev).forEach((x) => loadEverything(x)
         .then((res) => log("loaded next " + res.id.toString())));
   }
 
