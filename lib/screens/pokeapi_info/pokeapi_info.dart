@@ -76,13 +76,6 @@ class _PokeapiInfoState extends State<PokeapiInfo>
     f.then(after);
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // _loadedStats = false;
-    // changePokemon();
-  }
-
   Future<Pokemon> loadEverything(ApiConsumer<PokemonSpecies> species) {
     return species
         .getInfo()
@@ -118,7 +111,7 @@ class _PokeapiInfoState extends State<PokeapiInfo>
   @override
   Widget build(BuildContext context) {
     return ListenableProvider(
-      builder: (context) => _cardController,
+      create: (context) => _cardController,
       child: MultiProvider(
         providers: [ListenableProvider.value(value: _cardController)],
         child: Scaffold(
