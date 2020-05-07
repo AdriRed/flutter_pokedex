@@ -10,13 +10,15 @@ class SessionModel extends ChangeNotifier {
   static SessionModel of(BuildContext context, {bool listen = false}) =>
       Provider.of<SessionModel>(context, listen: listen);
 
-  void setNewData(UserData data) {
-    _data = data;
-    notifyListeners();
+  Future setNewData(UserData data) {
+    return Future.sync(() {
+      _data = data;
+      notifyListeners();
+    });
   }
 
-  void removeData() {
-    setNewData(null);
+  Future removeData() {
+    return setNewData(null);
   }
 }
 

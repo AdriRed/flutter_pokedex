@@ -195,8 +195,9 @@ class _UserPageState extends State<UserPage>
       // Scaffold.of(context).showSnackBar(SnackBar(
       //   content: Text("Welcome " + loggedUser + "!"),
       // ));
-      SessionModel.of(context).setNewData(data);
-      Navigator.of(context).popUntil((x) => x.isFirst);
+      SessionModel.of(context)
+          .setNewData(data)
+          .whenComplete(() => Navigator.of(context).popUntil((x) => x.isFirst));
     }, (reason) {
       _globalKey.currentState.showSnackBar(
         SnackBar(
@@ -216,8 +217,9 @@ class _UserPageState extends State<UserPage>
       // Scaffold.of(context).showSnackBar(SnackBar(
       //   content: Text("Welcome " + loggedUser + "!"),
       // ));
-      SessionModel.of(context).setNewData(data);
-      Navigator.of(context).popUntil((x) => x.isFirst);
+      SessionModel.of(context)
+          .setNewData(data)
+          .whenComplete(() => Navigator.of(context).popUntil((x) => x.isFirst));
     }, (reason) {
       _globalKey.currentState.showSnackBar(
         SnackBar(
