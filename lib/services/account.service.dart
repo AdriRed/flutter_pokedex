@@ -13,7 +13,7 @@ class AccountHelper {
       Function onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.post,
-        url: 'https://192.168.0.18:5001/api/account/login',
+        url: '/api/account/login',
         body: json.encode({'email': user, 'password': password}),
         headers: {'Content-Type': 'application/json'},
         onSuccess: (body, code) {
@@ -37,7 +37,7 @@ class AccountHelper {
       Function onSuccess, Function onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.post,
-        url: 'https://192.168.0.18:5001/api/account/register',
+        url: '/api/account/register',
         body: json.encode({
           'username': user,
           'email': user,
@@ -66,7 +66,7 @@ class AccountHelper {
       Function onSuccess, Function onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.put,
-        url: 'https://192.168.0.18:5001/api/account/edit',
+        url: '/api/account/edit',
         body: json.encode({
           'email': email,
           'username': username,
@@ -95,7 +95,7 @@ class AccountHelper {
   static Future self(Function onSuccess, Function onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.get,
-        url: 'https://192.168.0.18:5001/api/account/self',
+        url: '/api/account/self',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': await TokenHandler.getHeaderToken()
@@ -118,6 +118,8 @@ class AccountHelper {
 }
 
 class ApiHelper {
+  static const String apiUrl = 'http://sds-pokedex-api.azurewebsites.net/';
+
   static HttpClient _ioClient = new HttpClient()
     ..badCertificateCallback = (_, __, ___) => true;
 
@@ -128,18 +130,20 @@ class ApiHelper {
       Response response;
       switch (options.method) {
         case ApiOptionsMethods.get:
-          response = await _client.get(options.url, headers: options.headers);
+          response =
+              await _client.get(apiUrl + options.url, headers: options.headers);
           break;
         case ApiOptionsMethods.post:
-          response = await _client.post(options.url,
+          response = await _client.post(apiUrl + options.url,
               headers: options.headers, body: options.body);
           break;
         case ApiOptionsMethods.put:
-          response = await _client.put(options.url,
+          response = await _client.put(apiUrl + options.url,
               headers: options.headers, body: options.body);
           break;
         case ApiOptionsMethods.delete:
-          response = await _client.put(options.url, headers: options.headers);
+          response = await _client.delete(apiUrl + options.url,
+              headers: options.headers);
           break;
         default:
           throw new Exception(
