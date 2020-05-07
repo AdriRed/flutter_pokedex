@@ -28,7 +28,7 @@ class AccountHelper {
 
           TokenHandler.setToken(data.token).then((_) => onSuccess(data));
         },
-        onFailure: (body, create) => {onFailure?.call()});
+        onFailure: (body, create) => {onFailure?.call(body)});
 
     ApiHelper.call(options);
   }
@@ -37,8 +37,13 @@ class AccountHelper {
       Function onSuccess, Function onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.post,
-        url: 'https://192.168.0.18:5001/api/account/login',
-        body: json.encode({'email': user, 'password': password}),
+        url: 'https://192.168.0.18:5001/api/account/register',
+        body: json.encode({
+          'username': user,
+          'email': user,
+          'password': password,
+          'repeatPassword': repeated
+        }),
         headers: {'Content-Type': 'application/json'},
         onSuccess: (body, code) {
           var result = json.decode(body);
@@ -50,23 +55,22 @@ class AccountHelper {
             email: result['email'],
           );
 
-          TokenHandler.setToken(data.token).then((_) => onSuccess(data));
+          TokenHandler.setToken(data.token).then((_) => onSuccess?.call(data));
         },
-        onFailure: (body, code) => onFailure?.call());
+        onFailure: (body, code) => onFailure?.call(body));
 
     ApiHelper.call(options);
   }
 
-  static Future edit(String email, String password, String repeated,
+  static Future edit(String email, String username, List<int> photo,
       Function onSuccess, Function onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.put,
         url: 'https://192.168.0.18:5001/api/account/edit',
         body: json.encode({
           'email': email,
-          'password': password,
-          'repeatPassword': repeated,
-          'username': email
+          'username': username,
+          'photo': photo,
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +87,7 @@ class AccountHelper {
 
           onSuccess?.call(data);
         },
-        onFailure: (body, code) => onFailure());
+        onFailure: (body, code) => onFailure?.call(body));
 
     ApiHelper.call(options);
   }
@@ -107,7 +111,7 @@ class AccountHelper {
 
           onSuccess?.call(data);
         },
-        onFailure: (body, code) => onFailure());
+        onFailure: (body, code) => onFailure?.call(body));
 
     ApiHelper.call(options);
   }

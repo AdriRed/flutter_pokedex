@@ -61,7 +61,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  final globalKey = GlobalKey<ScaffoldState>();
+  final _globalKey = GlobalKey<ScaffoldState>();
 
   Widget _buildCard(BuildContext context) {
     final model = SessionModel.of(context);
@@ -84,13 +84,13 @@ class _HomeState extends State<Home> {
                   TokenHandler.removeToken().then((value) {
                     model.removeData();
                     this.setState(() => 1);
-                    globalKey.currentState.showSnackBar(
+                    _globalKey.currentState.showSnackBar(
                       SnackBar(
                         content: Text("Good bye!"),
                         action: SnackBarAction(
                           label: 'Bye!',
                           onPressed: () =>
-                              globalKey.currentState.hideCurrentSnackBar(),
+                              _globalKey.currentState.hideCurrentSnackBar(),
                         ),
                       ),
                     );
@@ -105,12 +105,12 @@ class _HomeState extends State<Home> {
         Container(),
         model.hasData
             ? InkWell(
-                onTap: () => globalKey.currentState.showSnackBar(SnackBar(
+                onTap: () => _globalKey.currentState.showSnackBar(SnackBar(
                   content: Text("Hello! " + model.data.username),
                   action: SnackBarAction(
                     label: 'Hello Pokedex App!',
                     onPressed: () =>
-                        globalKey.currentState.hideCurrentSnackBar(),
+                        _globalKey.currentState.hideCurrentSnackBar(),
                   ),
                 )),
                 child: Icon(Icons.android),
@@ -213,7 +213,7 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       // drawer: SideBar(),
-      key: globalKey,
+      key: _globalKey,
       body: NestedScrollView(
         controller: _scrollController,
         headerSliverBuilder: (_, __) => [

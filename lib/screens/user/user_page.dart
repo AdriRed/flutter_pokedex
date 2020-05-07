@@ -156,6 +156,7 @@ class _UserPageState extends State<UserPage>
               icon: Icons.vpn_key,
               placeholder: "Repeat password",
               onChanged: (txt) => _confirmed = txt,
+              obscureText: true,
             ),
           ),
           SizedBox(
@@ -197,15 +198,37 @@ class _UserPageState extends State<UserPage>
       SessionModel.of(context).setNewData(data);
       Navigator.of(context).popUntil((x) => x.isFirst);
     }, (reason) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text(reason),
-      ));
+      _globalKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text(reason),
+          action: SnackBarAction(
+            label: 'Ok',
+            onPressed: () => _globalKey.currentState.hideCurrentSnackBar(),
+          ),
+        ),
+      );
     });
   }
 
   void _create(
       String user, String password, String repeated, BuildContext context) {
-    AccountHelper.create(user, password, repeated, () {}, null);
+    AccountHelper.create(user, password, repeated, (data) {
+      // Scaffold.of(context).showSnackBar(SnackBar(
+      //   content: Text("Welcome " + loggedUser + "!"),
+      // ));
+      SessionModel.of(context).setNewData(data);
+      Navigator.of(context).popUntil((x) => x.isFirst);
+    }, (reason) {
+      _globalKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text(reason),
+          action: SnackBarAction(
+            label: 'Ok',
+            onPressed: () => _globalKey.currentState.hideCurrentSnackBar(),
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buttonCreateAccount(BuildContext context) {
@@ -245,6 +268,7 @@ class _UserPageState extends State<UserPage>
     );
   }
 
+  final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
   final _radius = 60.0;
 
   @override
@@ -261,6 +285,7 @@ class _UserPageState extends State<UserPage>
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
+      key: _globalKey,
       body: Stack(
         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
