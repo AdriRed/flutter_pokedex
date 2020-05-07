@@ -16,9 +16,9 @@ import 'widgets/fade_page_route.dart';
 void main() => runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(builder: (context) => PokemonModel()),
+          ChangeNotifierProvider(create: (context) => PokemonModel()),
           ChangeNotifierProvider(
-            builder: (context) => PokeapiModel(),
+            create: (context) => PokeapiModel(),
           )
           // ... other provider(s)
         ],

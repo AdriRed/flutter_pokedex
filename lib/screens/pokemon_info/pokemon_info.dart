@@ -58,7 +58,7 @@ class _PokemonInfoState extends State<PokemonInfo>
   @override
   Widget build(BuildContext context) {
     return ListenableProvider(
-      builder: (context) => _cardController,
+      create: (context) => _cardController,
       child: MultiProvider(
         providers: [ListenableProvider.value(value: _cardController)],
         child: Scaffold(

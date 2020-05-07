@@ -1,9 +1,10 @@
 import 'dart:developer';
+import 'dart:math' as Math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/configs/AppColors.dart';
-import 'package:pokedex/services/login.service.dart';
+import 'package:pokedex/services/account.service.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/expanded_section.dart';
 
@@ -15,10 +16,13 @@ class UserPage extends StatefulWidget {
   _UserPageState createState() => _UserPageState();
 }
 
-class _UserPageState extends State<UserPage> with TickerProviderStateMixin {
+class _UserPageState extends State<UserPage>
+    with SingleTickerProviderStateMixin {
   double _cardHeight;
 
   AnimationController _animationController;
+  Animation<double> _animationRadius;
+
   static const EdgeInsets margins = EdgeInsets.symmetric(horizontal: 28);
   static const double _appBarHorizontalPadding = 28.0;
   static const double _appBarTopPadding = 30.0;
@@ -36,7 +40,16 @@ class _UserPageState extends State<UserPage> with TickerProviderStateMixin {
   void initState() {
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 5));
-    _animationController.repeat(reverse: true);
+    // _animationController.repeat(reverse: true);
+    _animationRadius = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(0.0, 1.0, curve: Curves.linear)));
+
+    _animationController.repeat();
+
     _cardHeight = 0;
     _creating = false;
     super.initState();
@@ -118,7 +131,7 @@ class _UserPageState extends State<UserPage> with TickerProviderStateMixin {
       child: Column(
         children: <Widget>[
           _textbox(
-              icon: Icons.person,
+              icon: Icons.alternate_email,
               placeholder: "Email",
               onChanged: (txt) => _user = txt),
           SizedBox(
@@ -157,7 +170,10 @@ class _UserPageState extends State<UserPage> with TickerProviderStateMixin {
               ),
             ),
             onPressed: () {
-              LoginHelper.login(_user, _password);
+              if (_creating)
+                _create(_user, _password, _confirmed, context);
+              else
+                _login(_user, _password, context);
             },
             textTheme: ButtonTextTheme.accent,
             borderSide: BorderSide(
@@ -170,6 +186,24 @@ class _UserPageState extends State<UserPage> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+
+  void _login(String user, String password, BuildContext context) {
+    AccountHelper.login(user, password, (loggedUser) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text("Welcome " + loggedUser + "!"),
+      ));
+      Navigator.of(context).pushNamed('/');
+    }, (reason) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(reason),
+      ));
+    });
+  }
+
+  void _create(
+      String user, String password, String repeated, BuildContext context) {
+    AccountHelper.create(user, password, repeated, () {}, null);
   }
 
   Widget _buttonCreateAccount(BuildContext context) {
@@ -209,12 +243,19 @@ class _UserPageState extends State<UserPage> with TickerProviderStateMixin {
     );
   }
 
+  final _radius = 60.0;
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    Size squareSize = Size(screenWidth * 0.9, screenHeight * 0.3);
+    final image = Image.asset(
+      "assets/images/pokeball.png",
+      color: AppColors.black.withAlpha(20),
+      height: screenHeight * 0.06,
+    );
     _cardHeight = screenHeight * UserPage.cardHeightFraction;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -234,48 +275,34 @@ class _UserPageState extends State<UserPage> with TickerProviderStateMixin {
             bottom: screenHeight * 0.01,
             left: screenWidth * 0.01,
             right: screenWidth * 0.01,
-            child: Stack(
-              children: <Widget>[
-                RelativePositionedTransition(
-                  child: Image.asset(
-                    "assets/images/oak.png",
-                    color: AppColors.black.withAlpha(20),
-                    height: screenHeight * 0.12,
-                  ),
-                  size: squareSize,
-                  rect: RectTween(
-                    begin: Rect.fromLTRB(20, 20, 80, 20),
-                    end: Rect.fromLTRB(120, 200, 200, 200),
-                  ).animate(_animationController),
+            child: Center(
+              child: RotationTransition(
+                turns: _animationRadius,
+                child: Stack(
+                  children: <Widget>[
+                    Transform.translate(
+                      offset: Offset(_radius * Math.cos(2 * Math.pi / 4),
+                          _radius * Math.sin(2 * Math.pi / 4)),
+                      child: image,
+                    ),
+                    Transform.translate(
+                      offset: Offset(_radius * Math.cos(4 * Math.pi / 4),
+                          _radius * Math.sin(4 * Math.pi / 4)),
+                      child: image,
+                    ),
+                    Transform.translate(
+                      offset: Offset(_radius * Math.cos(6 * Math.pi / 4),
+                          _radius * Math.sin(6 * Math.pi / 4)),
+                      child: image,
+                    ),
+                    Transform.translate(
+                      offset: Offset(_radius * Math.cos(8 * Math.pi / 4),
+                          _radius * Math.sin(8 * Math.pi / 4)),
+                      child: image,
+                    )
+                  ],
                 ),
-                RelativePositionedTransition(
-                  child: Image.asset(
-                    "assets/images/bulbasaur.png",
-                    color: AppColors.black.withAlpha(20),
-                    height: screenHeight * 0.05,
-                  ),
-                  size: squareSize,
-                  rect: RectTween(
-                    begin: Rect.fromLTRB(200, 200, 200, 120),
-                    end: Rect.fromLTRB(80, 80, 80, 80),
-                  ).animate(_animationController),
-                ),
-                // RelativePositionedTransition(
-                //   child: Image.asset(
-                //     "assets/images/charmander.png",
-                //     color: AppColors.black.withAlpha(20),
-                //     height: screenHeight * 0.05,
-                //   ),
-                // ),
-                // RelativePositionedTransition(
-                //   rect: ,
-                //   child: Image.asset(
-                //     "assets/images/squirtle.png",
-                //     color: AppColors.black.withAlpha(20),
-                //     height: screenHeight * 0.05,
-                //   ),
-                // )
-              ],
+              ),
             ),
           ),
         ],
