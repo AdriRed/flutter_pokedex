@@ -6,6 +6,7 @@ import 'package:pokedex/services/account.service.dart';
 import 'package:pokedex/services/token.handler.dart';
 import 'package:pokedex/widgets/custom/sidebar.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
+import 'package:provider/provider.dart';
 
 import '../../configs/AppColors.dart';
 import '../../widgets/poke_container.dart';
@@ -42,7 +43,10 @@ class _HomeState extends State<Home> {
     _showTitle = false;
     _showToolbarColor = false;
     _scrollController = ScrollController()..addListener(_onScroll);
-
+    _hasToken = false;
+    _hasPersonalData = false;
+    _loginPage = true;
+    _tried = false;
     super.initState();
   }
 
@@ -62,86 +66,135 @@ class _HomeState extends State<Home> {
   }
 
   final _globalKey = GlobalKey<ScaffoldState>();
-
+  bool _hasToken, _hasPersonalData, _loginPage, _tried;
   Widget _buildCard(BuildContext context) {
-    final model = SessionModel.of(context);
-    Future loggedIn = TokenHandler.isLoggedIn;
-    loggedIn.then((res) {
-      if (res && !model.hasData)
-        AccountHelper.self(
-            (data) => model.setNewData(data), () => log("error getting self"));
-    });
-
-    return CustomPokeContainer(
-      appBar: <Widget>[
-        FutureBuilder(
-          future: loggedIn,
-          builder: (ctx, snp) {
-            if (snp.hasData && snp.data)
-              return InkWell(
-                onTap: () {
-                  log("logout");
-                  TokenHandler.removeToken().then((value) {
-                    model.removeData();
-                    this.setState(() => 1);
-                    _globalKey.currentState.showSnackBar(
-                      SnackBar(
-                        content: Text("Good bye!"),
-                        action: SnackBarAction(
-                          label: 'Bye!',
-                          onPressed: () =>
-                              _globalKey.currentState.hideCurrentSnackBar(),
-                        ),
-                      ),
-                    );
-                  });
-                },
-                child: Icon(Icons.power_settings_new),
-              );
-            else
-              return Container();
-          },
-        ),
-        Container(),
-        model.hasData
-            ? InkWell(
-                onTap: () => _globalKey.currentState.showSnackBar(SnackBar(
-                  content: Text("Hello! " + model.data.username),
-                  action: SnackBarAction(
-                    label: 'Hello Pokedex App!',
-                    onPressed: () =>
-                        _globalKey.currentState.hideCurrentSnackBar(),
-                  ),
-                )),
-                child: Icon(Icons.android),
-              )
-            : InkWell(
-                onTap: () => Navigator.of(context).pushNamed('/user'),
-                child: Icon(Icons.person),
-              ),
-      ],
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-      ),
-      children: <Widget>[
-        SizedBox(height: 30),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 28),
-          child: Text(
-            "What Pokemon\nare you looking for?",
-            style: TextStyle(
-              fontSize: 30,
-              height: 0.9,
-              fontWeight: FontWeight.w900,
+    // final model = SessionModel.of(context);
+    // Future loggedIn = TokenHandler.isLoggedIn.then((value) {
+    //   this.setState(() => _hasToken = value);
+    //   return value;
+    // });
+    // loggedIn.then((res) {
+    //   if (res && !_tried && !SessionModel.of(context).hasData)
+    //     AccountHelper.self((data) {
+    //       SessionModel.of(context).setNewData(data).then((_) {
+    //         this.setState(() {
+    //           _hasPersonalData = true;
+    //           _loginPage = false;
+    //           _tried = true;
+    //         });
+    //       });
+    //     }, (err) => log("error getting self"));
+    //   return null;
+    // });
+    var loggedIn = TokenHandler.isLoggedIn;
+    return Consumer<SessionModel>(
+      builder: (context, model, child) {
+        return CustomPokeContainer(
+          appBar: <Widget>[
+            FutureBuilder(
+              future: loggedIn,
+              builder: (context, snapshot) {
+                return snapshot.connectionState == ConnectionState.done &&
+                        snapshot.data
+                    ? InkWell(
+                        onTap: () {
+                          TokenHandler.removeToken().whenComplete(() {
+                            SessionModel.of(context)
+                                .removeData()
+                                .whenComplete(() {
+                              this.setState(() {
+                                _hasPersonalData = false;
+                                _loginPage = true;
+                                _hasToken = false;
+                              });
+                              _globalKey.currentState.showSnackBar(
+                                SnackBar(
+                                  content: Text("Good bye!"),
+                                  action: SnackBarAction(
+                                    label: 'Bye!',
+                                    onPressed: () => _globalKey.currentState
+                                        .hideCurrentSnackBar(),
+                                  ),
+                                ),
+                              );
+                            });
+                          });
+                        },
+                        child: Icon(Icons.power_settings_new),
+                      )
+                    : Container();
+              },
             ),
+            Container(),
+            FutureBuilder(
+              future: loggedIn.then((value) => value &&
+                      !model.hasData &&
+                      !_loginPage
+                  ? AccountHelper.self((data) => model.setNewData(data), null)
+                  : -1),
+              builder: (context, snapshot) {
+                if (model.hasData)
+                  return InkWell(
+                    onTap: () => _globalKey.currentState.showSnackBar(SnackBar(
+                      content: Text(
+                          "Hello! " + SessionModel.of(context).data.username),
+                      action: SnackBarAction(
+                        label: 'Hello Pokedex App!',
+                        onPressed: () =>
+                            _globalKey.currentState.hideCurrentSnackBar(),
+                      ),
+                    )),
+                    child: Icon(Icons.android),
+                  );
+
+                if (snapshot.connectionState == ConnectionState.done &&
+                    (snapshot.data == -1))
+                  return InkWell(
+                    onTap: () => Navigator.of(context).pushNamed('/user'),
+                    child: Icon(Icons.person),
+                  );
+                else if (snapshot.connectionState == ConnectionState.done)
+                  return InkWell(
+                    onTap: () => _globalKey.currentState.showSnackBar(SnackBar(
+                      content: Text(
+                          "Hello! " + SessionModel.of(context).data.username),
+                      action: SnackBarAction(
+                        label: 'Hello Pokedex App!',
+                        onPressed: () =>
+                            _globalKey.currentState.hideCurrentSnackBar(),
+                      ),
+                    )),
+                    child: Icon(Icons.android),
+                  );
+                else
+                  return Container();
+              },
+            ),
+          ],
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
           ),
-        ),
-        SizedBox(height: 40),
-        SearchBar(),
-        SizedBox(height: 42),
-        CategoryList(),
-      ],
+          children: <Widget>[
+            SizedBox(height: 30),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 28),
+              child: Text(
+                "What Pokemon\nare you looking for?",
+                style: TextStyle(
+                  fontSize: 30,
+                  height: 0.9,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            SizedBox(height: 40),
+            SearchBar(),
+            SizedBox(height: 42),
+            CategoryList(),
+          ],
+        );
+      },
     );
   }
 
