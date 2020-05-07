@@ -19,6 +19,12 @@ class TokenHandler {
   }
 
   static Future<String> getHeaderToken() async {
-    return 'Bearer ' + await getToken();
+    String token = await getToken();
+    return 'Bearer ' + token;
+  }
+
+  static Future removeToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove(_token);
   }
 }

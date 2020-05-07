@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart' as ioclient;
 import 'package:meta/meta.dart';
+import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/services/token.handler.dart';
 
 class AccountHelper {
@@ -17,8 +18,15 @@ class AccountHelper {
         headers: {'Content-Type': 'application/json'},
         onSuccess: (body, code) {
           var result = json.decode(body);
-          TokenHandler.setToken(result['token'])
-              .then((value) => onSuccess?.call(result['username']));
+
+          UserData data = UserData(
+            token: result['token'],
+            username: result['username'],
+            photo: result['photo'],
+            email: result['email'],
+          );
+
+          TokenHandler.setToken(data.token).then((_) => onSuccess(data));
         },
         onFailure: (body, create) => {onFailure?.call()});
 
@@ -34,8 +42,15 @@ class AccountHelper {
         headers: {'Content-Type': 'application/json'},
         onSuccess: (body, code) {
           var result = json.decode(body);
-          TokenHandler.setToken(result['token'])
-              .then((value) => onSuccess?.call(result['username']));
+
+          UserData data = UserData(
+            token: result['token'],
+            username: result['username'],
+            photo: result['photo'],
+            email: result['email'],
+          );
+
+          TokenHandler.setToken(data.token).then((_) => onSuccess(data));
         },
         onFailure: (body, code) => onFailure?.call());
 
@@ -45,19 +60,52 @@ class AccountHelper {
   static Future edit(String email, String password, String repeated,
       Function onSuccess, Function onFailure) async {
     ApiOptions options = ApiOptions(
-        method: ApiOptionsMethods.post,
-        url: 'https://192.168.0.18:5001/api/account/register',
+        method: ApiOptionsMethods.put,
+        url: 'https://192.168.0.18:5001/api/account/edit',
         body: json.encode({
           'email': email,
           'password': password,
           'repeatPassword': repeated,
           'username': email
         }),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': await TokenHandler.getHeaderToken()
+        },
         onSuccess: (body, code) {
           var result = json.decode(body);
-          TokenHandler.setToken(result['token'])
-              .then((value) => onSuccess?.call(result['username']));
+          UserData data = UserData(
+            token: result['token'],
+            username: result['username'],
+            photo: result['photo'],
+            email: result['email'],
+          );
+
+          onSuccess?.call(data);
+        },
+        onFailure: (body, code) => onFailure());
+
+    ApiHelper.call(options);
+  }
+
+  static Future self(Function onSuccess, Function onFailure) async {
+    ApiOptions options = ApiOptions(
+        method: ApiOptionsMethods.get,
+        url: 'https://192.168.0.18:5001/api/account/self',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': await TokenHandler.getHeaderToken()
+        },
+        onSuccess: (body, code) {
+          var result = json.decode(body);
+          UserData data = UserData(
+            token: result['token'],
+            username: result['username'],
+            photo: result['photo'],
+            email: result['email'],
+          );
+
+          onSuccess?.call(data);
         },
         onFailure: (body, code) => onFailure());
 

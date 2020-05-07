@@ -4,6 +4,7 @@ import 'dart:math' as Math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/configs/AppColors.dart';
+import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/services/account.service.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/expanded_section.dart';
@@ -189,11 +190,12 @@ class _UserPageState extends State<UserPage>
   }
 
   void _login(String user, String password, BuildContext context) {
-    AccountHelper.login(user, password, (loggedUser) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text("Welcome " + loggedUser + "!"),
-      ));
-      Navigator.of(context).pushNamed('/');
+    AccountHelper.login(user, password, (data) {
+      // Scaffold.of(context).showSnackBar(SnackBar(
+      //   content: Text("Welcome " + loggedUser + "!"),
+      // ));
+      SessionModel.of(context).setNewData(data);
+      Navigator.of(context).popUntil((x) => x.isFirst);
     }, (reason) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(reason),

@@ -1,6 +1,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:pokedex/models/session.model.dart';
+import 'package:pokedex/services/account.service.dart';
+import 'package:pokedex/services/token.handler.dart';
 import 'package:pokedex/widgets/custom/sidebar.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
 
@@ -58,16 +61,64 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Widget _buildCard() {
+  final globalKey = GlobalKey<ScaffoldState>();
+
+  Widget _buildCard(BuildContext context) {
+    final model = SessionModel.of(context);
+    Future loggedIn = TokenHandler.isLoggedIn;
+    loggedIn.then((res) {
+      if (res && !model.hasData)
+        AccountHelper.self(
+            (data) => model.setNewData(data), () => log("error getting self"));
+    });
+
     return CustomPokeContainer(
       appBar: <Widget>[
-        Container(),
-        InkWell(
-          onTap: () {
-            Navigator.of(context).pushNamed("/user");
+        FutureBuilder(
+          future: loggedIn,
+          builder: (ctx, snp) {
+            if (snp.hasData && snp.data)
+              return InkWell(
+                onTap: () {
+                  log("logout");
+                  TokenHandler.removeToken().then((value) {
+                    model.removeData();
+                    this.setState(() => 1);
+                    globalKey.currentState.showSnackBar(
+                      SnackBar(
+                        content: Text("Good bye!"),
+                        action: SnackBarAction(
+                          label: 'Bye!',
+                          onPressed: () =>
+                              globalKey.currentState.hideCurrentSnackBar(),
+                        ),
+                      ),
+                    );
+                  });
+                },
+                child: Icon(Icons.power_settings_new),
+              );
+            else
+              return Container();
           },
-          child: Icon(Icons.person),
-        )
+        ),
+        Container(),
+        model.hasData
+            ? InkWell(
+                onTap: () => globalKey.currentState.showSnackBar(SnackBar(
+                  content: Text("Hello! " + model.data.username),
+                  action: SnackBarAction(
+                    label: 'Hello Pokedex App!',
+                    onPressed: () =>
+                        globalKey.currentState.hideCurrentSnackBar(),
+                  ),
+                )),
+                child: Icon(Icons.android),
+              )
+            : InkWell(
+                onTap: () => Navigator.of(context).pushNamed('/user'),
+                child: Icon(Icons.person),
+              ),
       ],
       decoration: BoxDecoration(
         color: Colors.white,
@@ -145,8 +196,7 @@ class _HomeState extends State<Home> {
               // InkWell(child: null
               //     // onTap: Navigator.of(context).pop,
               //     ),
-              child,
-              Icon(Icons.favorite_border, color: Colors.white),
+              child
             ],
           ),
           // This widget just sit here for easily calculate the new position of
@@ -163,6 +213,7 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       // drawer: SideBar(),
+      key: globalKey,
       body: NestedScrollView(
         controller: _scrollController,
         headerSliverBuilder: (_, __) => [
@@ -188,7 +239,7 @@ class _HomeState extends State<Home> {
                       ),
                     )
                   : null,
-              background: _buildCard(),
+              background: _buildCard(context),
             ),
           ),
         ],
