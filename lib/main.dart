@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/models/pokemon.dart';
+import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/screens/pokeapi_info/pokeapi_info.dart';
 import 'package:pokedex/screens/pokedex_api/pokedex_api.dart';
+import 'package:pokedex/screens/user/user_page.dart';
 import 'package:provider/provider.dart';
 
 import 'configs/AppColors.dart';
@@ -15,9 +17,12 @@ import 'widgets/fade_page_route.dart';
 void main() => runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(builder: (context) => PokemonModel()),
+          ChangeNotifierProvider(create: (context) => PokemonModel()),
           ChangeNotifierProvider(
-            builder: (context) => PokeapiModel(),
+            create: (context) => PokeapiModel(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => SessionModel(),
           )
           // ... other provider(s)
         ],
@@ -42,6 +47,9 @@ class MyApp extends StatelessWidget {
 
       case '/pokeapi-info':
         return FadeRoute(page: PokeapiInfo());
+
+      case '/user':
+        return FadeRoute(page: UserPage());
 
       default:
         return null;
