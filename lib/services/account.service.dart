@@ -30,7 +30,7 @@ class AccountHelper {
         },
         onFailure: (body, create) => {onFailure?.call(body)});
 
-    ApiHelper.call(options);
+    return ApiHelper.call(options);
   }
 
   static Future create(String user, String password, String repeated,
@@ -59,7 +59,7 @@ class AccountHelper {
         },
         onFailure: (body, code) => onFailure?.call(body));
 
-    ApiHelper.call(options);
+    return ApiHelper.call(options);
   }
 
   static Future edit(String email, String username, List<int> photo,
@@ -89,7 +89,7 @@ class AccountHelper {
         },
         onFailure: (body, code) => onFailure?.call(body));
 
-    ApiHelper.call(options);
+    return ApiHelper.call(options);
   }
 
   static Future self(Function onSuccess, Function onFailure) async {
@@ -113,7 +113,7 @@ class AccountHelper {
         },
         onFailure: (body, code) => onFailure?.call(body));
 
-    ApiHelper.call(options);
+    return ApiHelper.call(options);
   }
 }
 

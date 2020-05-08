@@ -43,10 +43,6 @@ class _HomeState extends State<Home> {
     _showTitle = false;
     _showToolbarColor = false;
     _scrollController = ScrollController()..addListener(_onScroll);
-    _hasToken = false;
-    _hasPersonalData = false;
-    _loginPage = true;
-    _tried = false;
     super.initState();
   }
 
@@ -66,33 +62,13 @@ class _HomeState extends State<Home> {
   }
 
   final _globalKey = GlobalKey<ScaffoldState>();
-  bool _hasToken, _hasPersonalData, _loginPage, _tried;
   Widget _buildCard(BuildContext context) {
-    // final model = SessionModel.of(context);
-    // Future loggedIn = TokenHandler.isLoggedIn.then((value) {
-    //   this.setState(() => _hasToken = value);
-    //   return value;
-    // });
-    // loggedIn.then((res) {
-    //   if (res && !_tried && !SessionModel.of(context).hasData)
-    //     AccountHelper.self((data) {
-    //       SessionModel.of(context).setNewData(data).then((_) {
-    //         this.setState(() {
-    //           _hasPersonalData = true;
-    //           _loginPage = false;
-    //           _tried = true;
-    //         });
-    //       });
-    //     }, (err) => log("error getting self"));
-    //   return null;
-    // });
-    var loggedIn = TokenHandler.isLoggedIn;
     return Consumer<SessionModel>(
       builder: (context, model, child) {
         return CustomPokeContainer(
           appBar: <Widget>[
             FutureBuilder(
-              future: loggedIn,
+              future: TokenHandler.isLoggedIn,
               builder: (context, snapshot) {
                 return snapshot.connectionState == ConnectionState.done &&
                         snapshot.data
@@ -102,11 +78,6 @@ class _HomeState extends State<Home> {
                             SessionModel.of(context)
                                 .removeData()
                                 .whenComplete(() {
-                              this.setState(() {
-                                _hasPersonalData = false;
-                                _loginPage = true;
-                                _hasToken = false;
-                              });
                               _globalKey.currentState.showSnackBar(
                                 SnackBar(
                                   content: Text("Good bye!"),
@@ -125,49 +96,56 @@ class _HomeState extends State<Home> {
                     : Container();
               },
             ),
-            Container(),
+            SizedBox(
+              height: 25,
+            ),
             FutureBuilder(
-              future: loggedIn.then((value) => value &&
-                      !model.hasData &&
-                      !_loginPage
-                  ? AccountHelper.self((data) => model.setNewData(data), null)
-                  : -1),
+              future: TokenHandler.isLoggedIn,
               builder: (context, snapshot) {
-                if (model.hasData)
-                  return InkWell(
-                    onTap: () => _globalKey.currentState.showSnackBar(SnackBar(
-                      content: Text(
-                          "Hello! " + SessionModel.of(context).data.username),
-                      action: SnackBarAction(
-                        label: 'Hello Pokedex App!',
-                        onPressed: () =>
-                            _globalKey.currentState.hideCurrentSnackBar(),
-                      ),
-                    )),
-                    child: Icon(Icons.android),
-                  );
+                if (snapshot.connectionState != ConnectionState.done)
+                  return Container();
 
-                if (snapshot.connectionState == ConnectionState.done &&
-                    (snapshot.data == -1))
+                var button = InkWell(
+                  onTap: () {
+                    return _globalKey.currentState.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            "Hello! " + SessionModel.of(context).data.username),
+                        action: SnackBarAction(
+                          label: 'Hello Pokedex App!',
+                          onPressed: () =>
+                              _globalKey.currentState.hideCurrentSnackBar(),
+                        ),
+                      ),
+                    );
+                  },
+                  child: Icon(Icons.android),
+                );
+
+                if (snapshot.data) {
+                  if (model.hasData) return button;
+                  return FutureBuilder(
+                    future: AccountHelper.self(
+                        (data) => model.setNewData(data), null),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done)
+                        return button;
+                      return SizedBox(
+                        width: 25.0,
+                        height: 25.0,
+                        child: CircularProgressIndicator(
+                          valueColor: new AlwaysStoppedAnimation<Color>(
+                            AppColors.black,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                } else
                   return InkWell(
                     onTap: () => Navigator.of(context).pushNamed('/user'),
                     child: Icon(Icons.person),
                   );
-                else if (snapshot.connectionState == ConnectionState.done)
-                  return InkWell(
-                    onTap: () => _globalKey.currentState.showSnackBar(SnackBar(
-                      content: Text(
-                          "Hello! " + SessionModel.of(context).data.username),
-                      action: SnackBarAction(
-                        label: 'Hello Pokedex App!',
-                        onPressed: () =>
-                            _globalKey.currentState.hideCurrentSnackBar(),
-                      ),
-                    )),
-                    child: Icon(Icons.android),
-                  );
-                else
-                  return Container();
               },
             ),
           ],
