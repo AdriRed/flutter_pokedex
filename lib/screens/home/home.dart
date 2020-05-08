@@ -125,7 +125,9 @@ class _HomeState extends State<Home> {
                     : Container();
               },
             ),
-            Container(),
+            SizedBox(
+              height: 25,
+            ),
             FutureBuilder(
               future: loggedIn.then((value) => value &&
                       !model.hasData &&
