@@ -67,85 +67,49 @@ class _HomeState extends State<Home> {
       builder: (context, model, child) {
         return CustomPokeContainer(
           appBar: <Widget>[
-            FutureBuilder(
-              future: TokenHandler.isLoggedIn,
-              builder: (context, snapshot) {
-                return snapshot.connectionState == ConnectionState.done &&
-                        snapshot.data
-                    ? InkWell(
-                        onTap: () {
-                          TokenHandler.removeToken().whenComplete(() {
-                            SessionModel.of(context)
-                                .removeData()
-                                .whenComplete(() {
-                              _globalKey.currentState.showSnackBar(
-                                SnackBar(
-                                  content: Text("Good bye!"),
-                                  action: SnackBarAction(
-                                    label: 'Bye!',
-                                    onPressed: () => _globalKey.currentState
-                                        .hideCurrentSnackBar(),
-                                  ),
-                                ),
-                              );
-                            });
-                          });
-                        },
-                        child: Icon(Icons.power_settings_new),
-                      )
-                    : Container();
-              },
-            ),
+            // FutureBuilder(
+            //   future: TokenHandler.isLoggedIn,
+            //   builder: (context, snapshot) {
+            //     return snapshot.connectionState == ConnectionState.done &&
+            //             snapshot.data
+            //         ? InkWell(
+            //             onTap: () {
+            //               TokenHandler.removeToken().whenComplete(() {
+            //                 SessionModel.of(context)
+            //                     .removeData()
+            //                     .whenComplete(() {
+            //                   _globalKey.currentState.showSnackBar(
+            //                     SnackBar(
+            //                       content: Text("Good bye!"),
+            //                       action: SnackBarAction(
+            //                         label: 'Bye!',
+            //                         onPressed: () => _globalKey.currentState
+            //                             .hideCurrentSnackBar(),
+            //                       ),
+            //                     ),
+            //                   );
+            //                 });
+            //               });
+            //             },
+            //             child: Icon(Icons.power_settings_new),
+            //           )
+            //         : Container();
+            //   },
+            // ),
             SizedBox(
               height: 25,
             ),
-            FutureBuilder(
+            FutureBuilder<bool>(
               future: TokenHandler.isLoggedIn,
               builder: (context, snapshot) {
                 if (snapshot.connectionState != ConnectionState.done)
                   return Container();
 
-                var button = InkWell(
-                  onTap: () {
-                    return _globalKey.currentState.showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            "Hello! " + SessionModel.of(context).data.username),
-                        action: SnackBarAction(
-                          label: 'Hello Pokedex App!',
-                          onPressed: () =>
-                              _globalKey.currentState.hideCurrentSnackBar(),
-                        ),
-                      ),
-                    );
-                  },
-                  child: Icon(Icons.android),
+                return InkWell(
+                  onTap: () => Navigator.of(context)
+                      .pushNamed(snapshot.data ? '/profile' : '/login'),
+                  child: Icon(snapshot.data ? Icons.input : Icons.person),
                 );
-
-                if (snapshot.data) {
-                  if (model.hasData) return button;
-                  return FutureBuilder(
-                    future: AccountHelper.self(
-                        (data) => model.setNewData(data), null),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done)
-                        return button;
-                      return SizedBox(
-                        width: 25.0,
-                        height: 25.0,
-                        child: CircularProgressIndicator(
-                          valueColor: new AlwaysStoppedAnimation<Color>(
-                            AppColors.black,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                } else
-                  return InkWell(
-                    onTap: () => Navigator.of(context).pushNamed('/user'),
-                    child: Icon(Icons.person),
-                  );
               },
             ),
           ],

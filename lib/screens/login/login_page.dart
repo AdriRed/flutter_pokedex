@@ -9,15 +9,15 @@ import 'package:pokedex/services/account.service.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/expanded_section.dart';
 
-class UserPage extends StatefulWidget {
-  UserPage({Key key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  LoginPage({Key key}) : super(key: key);
   static const cardHeightFraction = 1;
 
   @override
-  _UserPageState createState() => _UserPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _UserPageState extends State<UserPage>
+class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   double _cardHeight;
 
@@ -282,7 +282,7 @@ class _UserPageState extends State<UserPage>
       color: AppColors.black.withAlpha(20),
       height: screenHeight * 0.06,
     );
-    _cardHeight = screenHeight * UserPage.cardHeightFraction;
+    _cardHeight = screenHeight * LoginPage.cardHeightFraction;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
