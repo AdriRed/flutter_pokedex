@@ -199,7 +199,7 @@ class _LoginPageState extends State<LoginPage>
           .setNewData(data)
           .whenComplete(() => Navigator.of(context).popUntil((x) => x.isFirst));
     }, (reason) {
-      _globalKey.currentState.showSnackBar(
+      _globalKey.currentState?.showSnackBar(
         SnackBar(
           content: Text(reason),
           action: SnackBarAction(

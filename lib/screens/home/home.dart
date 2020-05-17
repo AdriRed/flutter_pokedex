@@ -67,35 +67,35 @@ class _HomeState extends State<Home> {
       builder: (context, model, child) {
         return CustomPokeContainer(
           appBar: <Widget>[
-            // FutureBuilder(
-            //   future: TokenHandler.isLoggedIn,
-            //   builder: (context, snapshot) {
-            //     return snapshot.connectionState == ConnectionState.done &&
-            //             snapshot.data
-            //         ? InkWell(
-            //             onTap: () {
-            //               TokenHandler.removeToken().whenComplete(() {
-            //                 SessionModel.of(context)
-            //                     .removeData()
-            //                     .whenComplete(() {
-            //                   _globalKey.currentState.showSnackBar(
-            //                     SnackBar(
-            //                       content: Text("Good bye!"),
-            //                       action: SnackBarAction(
-            //                         label: 'Bye!',
-            //                         onPressed: () => _globalKey.currentState
-            //                             .hideCurrentSnackBar(),
-            //                       ),
-            //                     ),
-            //                   );
-            //                 });
-            //               });
-            //             },
-            //             child: Icon(Icons.power_settings_new),
-            //           )
-            //         : Container();
-            //   },
-            // ),
+            FutureBuilder(
+              future: TokenHandler.isLoggedIn,
+              builder: (context, snapshot) {
+                return snapshot.connectionState == ConnectionState.done &&
+                        snapshot.data
+                    ? InkWell(
+                        onTap: () {
+                          TokenHandler.removeToken().whenComplete(() {
+                            SessionModel.of(context)
+                                .removeData()
+                                .whenComplete(() {
+                              _globalKey.currentState.showSnackBar(
+                                SnackBar(
+                                  content: Text("Good bye!"),
+                                  action: SnackBarAction(
+                                    label: 'Bye!',
+                                    onPressed: () => _globalKey.currentState
+                                        .hideCurrentSnackBar(),
+                                  ),
+                                ),
+                              );
+                            });
+                          });
+                        },
+                        child: Icon(Icons.power_settings_new),
+                      )
+                    : Container();
+              },
+            ),
             SizedBox(
               height: 25,
             ),
@@ -108,7 +108,7 @@ class _HomeState extends State<Home> {
                 return InkWell(
                   onTap: () => Navigator.of(context)
                       .pushNamed(snapshot.data ? '/profile' : '/login'),
-                  child: Icon(snapshot.data ? Icons.input : Icons.person),
+                  child: Icon(snapshot.data ? Icons.person : Icons.input),
                 );
               },
             ),

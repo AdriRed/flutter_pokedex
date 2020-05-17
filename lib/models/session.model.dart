@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +27,7 @@ class SessionModel extends ChangeNotifier {
 class UserData {
   final String username;
   final String email;
-  final List<int> photo;
+  final Uint8List photo;
   final String token;
 
   UserData({this.username, this.email, this.photo, this.token});
