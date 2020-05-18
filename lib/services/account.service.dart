@@ -147,8 +147,8 @@ class AccountHelper {
 }
 
 class ApiHelper {
-  // static const String apiUrl = 'http://sds-pokedex-api.azurewebsites.net';
-  static const String apiUrl = 'https://192.168.0.18:5001';
+  static const String apiUrl = 'http://sds-pokedex-api.azurewebsites.net';
+  // static const String apiUrl = 'https://192.168.0.18:5001';
 
   static HttpClient _ioClient = new HttpClient()
     ..badCertificateCallback = (_, __, ___) => true;

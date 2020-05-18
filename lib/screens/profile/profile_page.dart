@@ -329,7 +329,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _form(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
+      child: ListView(
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -520,7 +520,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       key: _globalKey,
       body: Stack(
@@ -531,7 +531,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: _buildCard(),
           ),
           Positioned.fill(
-            top: screenHeight * 0.27,
+            top: screenHeight * 0.20,
             child: _editing ? _form(context) : _profile(context),
           ),
         ],
