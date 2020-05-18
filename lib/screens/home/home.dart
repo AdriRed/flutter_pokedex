@@ -99,53 +99,17 @@ class _HomeState extends State<Home> {
             SizedBox(
               height: 25,
             ),
-            FutureBuilder(
+            FutureBuilder<bool>(
               future: TokenHandler.isLoggedIn,
               builder: (context, snapshot) {
                 if (snapshot.connectionState != ConnectionState.done)
                   return Container();
 
-                var button = InkWell(
-                  onTap: () {
-                    return _globalKey.currentState.showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            "Hello! " + SessionModel.of(context).data.username),
-                        action: SnackBarAction(
-                          label: 'Hello Pokedex App!',
-                          onPressed: () =>
-                              _globalKey.currentState.hideCurrentSnackBar(),
-                        ),
-                      ),
-                    );
-                  },
-                  child: Icon(Icons.android),
+                return InkWell(
+                  onTap: () => Navigator.of(context)
+                      .pushNamed(snapshot.data ? '/profile' : '/login'),
+                  child: Icon(snapshot.data ? Icons.person : Icons.input),
                 );
-
-                if (snapshot.data) {
-                  if (model.hasData) return button;
-                  return FutureBuilder(
-                    future: AccountHelper.self(
-                        (data) => model.setNewData(data), null),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done)
-                        return button;
-                      return SizedBox(
-                        width: 25.0,
-                        height: 25.0,
-                        child: CircularProgressIndicator(
-                          valueColor: new AlwaysStoppedAnimation<Color>(
-                            AppColors.black,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                } else
-                  return InkWell(
-                    onTap: () => Navigator.of(context).pushNamed('/user'),
-                    child: Icon(Icons.person),
-                  );
               },
             ),
           ],

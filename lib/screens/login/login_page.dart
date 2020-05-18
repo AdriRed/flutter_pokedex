@@ -9,15 +9,15 @@ import 'package:pokedex/services/account.service.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/expanded_section.dart';
 
-class UserPage extends StatefulWidget {
-  UserPage({Key key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  LoginPage({Key key}) : super(key: key);
   static const cardHeightFraction = 1;
 
   @override
-  _UserPageState createState() => _UserPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _UserPageState extends State<UserPage>
+class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   double _cardHeight;
 
@@ -129,7 +129,7 @@ class _UserPageState extends State<UserPage>
   Widget _form(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
+      child: ListView(
         children: <Widget>[
           _textbox(
               icon: Icons.alternate_email,
@@ -199,7 +199,7 @@ class _UserPageState extends State<UserPage>
           .setNewData(data)
           .whenComplete(() => Navigator.of(context).popUntil((x) => x.isFirst));
     }, (reason) {
-      _globalKey.currentState.showSnackBar(
+      _globalKey.currentState?.showSnackBar(
         SnackBar(
           content: Text(reason),
           action: SnackBarAction(
@@ -282,10 +282,10 @@ class _UserPageState extends State<UserPage>
       color: AppColors.black.withAlpha(20),
       height: screenHeight * 0.06,
     );
-    _cardHeight = screenHeight * UserPage.cardHeightFraction;
+    _cardHeight = screenHeight * LoginPage.cardHeightFraction;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       key: _globalKey,
       body: Stack(
