@@ -27,7 +27,7 @@ class SessionModel extends ChangeNotifier {
 class UserData {
   final String username;
   final String email;
-  final Uint8List photo;
+  final String photo;
   final String token;
 
   UserData({this.username, this.email, this.photo, this.token});
