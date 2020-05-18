@@ -62,15 +62,44 @@ class AccountHelper {
     return ApiHelper.call(options);
   }
 
-  static Future edit(String email, String username, List<int> photo,
-      Function onSuccess, Function onFailure) async {
+  static Future edit(
+      UserData data, Function onSuccess, Function onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.put,
         url: '/api/account/edit',
         body: json.encode({
-          'email': email,
-          'username': username,
-          'photo': photo,
+          'email': data.email,
+          'username': data.username,
+          'photo': data.photo,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': await TokenHandler.getHeaderToken()
+        },
+        onSuccess: (body, code) {
+          var result = json.decode(body);
+          UserData data = UserData(
+            token: result['token'],
+            username: result['username'],
+            photo: result['photo'],
+            email: result['email'],
+          );
+
+          onSuccess?.call(data);
+        },
+        onFailure: (body, code) => onFailure?.call(body));
+
+    return ApiHelper.call(options);
+  }
+
+  static Future changePassword(String newP, String repeatP, Function onSuccess,
+      Function onFailure) async {
+    ApiOptions options = ApiOptions(
+        method: ApiOptionsMethods.put,
+        url: '/api/account/changepassword',
+        body: json.encode({
+          'password': newP,
+          'repeatPassword': repeatP,
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -118,8 +147,8 @@ class AccountHelper {
 }
 
 class ApiHelper {
-  static const String apiUrl = 'http://sds-pokedex-api.azurewebsites.net';
-  // static const String apiUrl = 'https://192.168.0.18:5001';
+  // static const String apiUrl = 'http://sds-pokedex-api.azurewebsites.net';
+  static const String apiUrl = 'https://192.168.0.18:5001';
 
   static HttpClient _ioClient = new HttpClient()
     ..badCertificateCallback = (_, __, ___) => true;
