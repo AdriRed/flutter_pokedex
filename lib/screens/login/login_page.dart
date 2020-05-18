@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage>
   Widget _form(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
+      child: ListView(
         children: <Widget>[
           _textbox(
               icon: Icons.alternate_email,
@@ -285,7 +285,7 @@ class _LoginPageState extends State<LoginPage>
     _cardHeight = screenHeight * LoginPage.cardHeightFraction;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       key: _globalKey,
       body: Stack(
