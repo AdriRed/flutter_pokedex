@@ -76,7 +76,7 @@ class _HomeState extends State<Home> {
                         onTap: () {
                           TokenHandler.removeToken().whenComplete(() {
                             SessionModel.of(context)
-                                .removeData()
+                                .removeUserData()
                                 .whenComplete(() {
                               _globalKey.currentState.showSnackBar(
                                 SnackBar(

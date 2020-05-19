@@ -4,23 +4,37 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
 class SessionModel extends ChangeNotifier {
-  UserData _data;
+  UserData _user;
+  FavouritesData _favourites;
 
-  bool get hasData => data != null;
-  UserData get data => _data;
+  bool get hasUserData => userData != null;
+  bool get hasFavouritesData => _favourites != null;
+  UserData get userData => _user;
+  FavouritesData get favouritesData => _favourites;
 
   static SessionModel of(BuildContext context, {bool listen = false}) =>
       Provider.of<SessionModel>(context, listen: listen);
 
-  Future setNewData(UserData data) {
+  Future setUserData(UserData data) {
     return Future.sync(() {
-      _data = data;
+      _user = data;
       notifyListeners();
     });
   }
 
-  Future removeData() {
-    return setNewData(null);
+  Future removeUserData() {
+    return setUserData(null);
+  }
+
+  Future setFavouritesData(FavouritesData data) {
+    return Future.sync(() {
+      _favourites = data;
+      notifyListeners();
+    });
+  }
+
+  Future removeFavouritesData() {
+    return setFavouritesData(null);
   }
 }
 
@@ -31,4 +45,16 @@ class UserData {
   final String token;
 
   UserData({this.username, this.email, this.photo, this.token});
+}
+
+class FavouritesData {
+  List<Favourite> favourites;
+
+  FavouritesData({this.favourites});
+}
+
+class Favourite {
+  int pokemonId;
+
+  Favourite({this.pokemonId});
 }

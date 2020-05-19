@@ -196,7 +196,7 @@ class _LoginPageState extends State<LoginPage>
       //   content: Text("Welcome " + loggedUser + "!"),
       // ));
       SessionModel.of(context)
-          .setNewData(data)
+          .setUserData(data)
           .whenComplete(() => Navigator.of(context).popUntil((x) => x.isFirst));
     }, (reason) {
       _globalKey.currentState?.showSnackBar(
@@ -218,7 +218,7 @@ class _LoginPageState extends State<LoginPage>
       //   content: Text("Welcome " + loggedUser + "!"),
       // ));
       SessionModel.of(context)
-          .setNewData(data)
+          .setUserData(data)
           .whenComplete(() => Navigator.of(context).popUntil((x) => x.isFirst));
     }, (reason) {
       _globalKey.currentState.showSnackBar(

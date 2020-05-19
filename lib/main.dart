@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/models/session.model.dart';
+import 'package:pokedex/screens/favourites/favourites.dart';
 import 'package:pokedex/screens/pokeapi_info/pokeapi_info.dart';
 import 'package:pokedex/screens/pokedex_api/pokedex_api.dart';
 import 'package:pokedex/screens/profile/profile_page.dart';
@@ -44,6 +45,9 @@ class MyApp extends StatelessWidget {
 
       case '/profile':
         return FadeRoute(page: ProfilePage());
+
+      case '/favourites':
+        return FadeRoute(page: FavouritesPage());
 
       default:
         return null;
