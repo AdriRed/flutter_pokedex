@@ -2,13 +2,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
-import 'package:pokedex/models/pokemon.dart';
-import 'package:pokedex/screens/pokedex/widgets/generation_modal.dart';
-import 'package:pokedex/screens/pokedex/widgets/search_modal.dart';
+import 'package:pokedex/screens/pokedex_api/widgets/generation_modal.dart';
+import 'package:pokedex/screens/pokedex_api/widgets/search_modal.dart';
 import 'package:pokedex/widgets/fab.dart';
 import 'package:pokedex/widgets/poke_container.dart';
 import 'package:pokedex/widgets/pokemon_api_card.dart';
-import 'package:pokedex/widgets/pokemon_card.dart';
 import 'package:provider/provider.dart';
 
 class PokedexApi extends StatefulWidget {
