@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/apimodels/PokemonSpecies.dart';
 import 'package:pokedex/consumers/ApiConsumer.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
+import 'package:pokedex/models/session.model.dart';
+import 'package:pokedex/services/pokemon.service.dart';
+import 'package:pokedex/services/token.handler.dart';
 import 'package:pokedex/widgets/pokemon_api_card.dart';
 import 'package:provider/provider.dart';
 
@@ -112,7 +117,48 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
                 child: Icon(Icons.arrow_back, color: Colors.white),
                 onTap: Navigator.of(context).pop,
               ),
-              Icon(Icons.favorite_border, color: Colors.white),
+              Consumer2<PokeapiModel, SessionModel>(
+                builder: (context, pokemon, session, child) {
+                  return FutureBuilder<bool>(
+                    future: TokenHandler.isLoggedIn,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done ||
+                          !snapshot.data) return Container();
+                      var button = () => session.favouritesData.favourites.any(
+                              (x) =>
+                                  x.pokemonId == pokemon.pokemonSpecies.info.id)
+                          ? GestureDetector(
+                              onTap: () => this._removeFromFavourites(
+                                  pokemon.pokemonSpecies.info.id),
+                              child: Icon(
+                                Icons.favorite,
+                                color: Colors.white,
+                              ),
+                            )
+                          : GestureDetector(
+                              onTap: () => this._addToFavourites(
+                                  pokemon.pokemonSpecies.info.id),
+                              child: Icon(
+                                Icons.favorite_border,
+                                color: Colors.white,
+                              ),
+                            );
+                      if (session.hasFavouritesData) return button();
+                      return FutureBuilder(
+                        future: PokemonHelper.getFavouites(
+                            (data) => SessionModel.of(context)
+                                .setFavouritesData(data),
+                            (_) => {log("Error loading favourites")}),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState != ConnectionState.done)
+                            return Container();
+                          return button();
+                        },
+                      );
+                    },
+                  );
+                },
+              )
             ],
           ),
           // This widget just sit here for easily calculate the new position of
@@ -133,6 +179,10 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
       ),
     );
   }
+
+  void _addToFavourites(int id) {}
+
+  void _removeFromFavourites(int id) {}
 
   Widget _buildPokemonName(PokemonSpecies pokemon) {
     final cardScrollController = Provider.of<AnimationController>(context);
