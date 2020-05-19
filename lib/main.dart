@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 
 import 'configs/AppColors.dart';
 import 'screens/home/home.dart';
-import 'screens/pokemon_info/pokemon_info.dart';
 import 'widgets/fade_page_route.dart';
 
 void main() => runApp(
@@ -38,9 +37,6 @@ class MyApp extends StatelessWidget {
 
       case '/pokedex-api':
         return FadeRoute(page: PokedexApi());
-
-      case '/pokemon-info':
-        return FadeRoute(page: PokemonInfo());
 
       case '/pokeapi-info':
         return FadeRoute(page: PokeapiInfo());
