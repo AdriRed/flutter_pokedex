@@ -162,25 +162,28 @@ class _LoginPageState extends State<LoginPage>
           SizedBox(
             height: 25,
           ),
-          OutlineButton(
-            child: Text(
-              _creating ? "Create new account" : "Log in",
-              style: TextStyle(
-                color: AppColors.blue,
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 50),
+            child: OutlineButton(
+              child: Text(
+                _creating ? "Create new account" : "Log in",
+                style: TextStyle(
+                  color: AppColors.blue,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
               ),
-            ),
-            onPressed: () {
-              if (_creating)
-                _create(_user, _password, _confirmed, context);
-              else
-                _login(_user, _password, context);
-            },
-            textTheme: ButtonTextTheme.accent,
-            borderSide: BorderSide(
-              color: AppColors.blue,
-              width: 2,
+              onPressed: () {
+                if (_creating)
+                  _create(_user, _password, _confirmed, context);
+                else
+                  _login(_user, _password, context);
+              },
+              textTheme: ButtonTextTheme.accent,
+              borderSide: BorderSide(
+                color: AppColors.blue,
+                width: 2,
+              ),
             ),
           ),
           SizedBox(height: 15),
