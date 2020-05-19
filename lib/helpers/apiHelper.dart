@@ -41,13 +41,13 @@ class ApiHelper {
               "Not implemented method " + options.method.toString());
       }
       if (response.statusCode == 200)
-        options.onSuccess?.call(response.body, response.statusCode);
+        await options.onSuccess?.call(response.body, response.statusCode);
       else
-        options.onFailure?.call(response.body, response.statusCode);
+        await options.onFailure?.call(response.body, response.statusCode);
     } catch (e) {
-      options.onFailure?.call(e.runtimeType.toString(), -1);
+      await options.onFailure?.call(e.runtimeType.toString(), -1);
     } finally {
-      options.onFinally?.call();
+      await options.onFinally?.call();
     }
   }
 }

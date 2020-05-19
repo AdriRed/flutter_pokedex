@@ -36,6 +36,20 @@ class SessionModel extends ChangeNotifier {
   Future removeFavouritesData() {
     return setFavouritesData(null);
   }
+
+  int _favouritesIndex;
+  void setFavouritesIndex(int index) {
+    _favouritesIndex = index;
+
+    notifyListeners();
+  }
+
+  int _customIndex;
+  void setCustomIndex(int index) {
+    _customIndex = index;
+
+    notifyListeners();
+  }
 }
 
 class UserData {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:pokedex/helpers/apiHelper.dart';
 import 'package:pokedex/models/session.model.dart';
@@ -14,13 +15,18 @@ class PokemonHelper {
           'Authorization': await TokenHandler.getHeaderToken()
         },
         onSuccess: (body, code) {
-          var result = json.decode(body);
-
-          FavouritesData data = result.map(
-            (x) => new Favourite(
-              pokemonId: x["favouritePokemonId"],
-            ),
-          );
+          var jsonresult = json.decode(body);
+          var result = jsonresult as List<dynamic>;
+          FavouritesData data = new FavouritesData(
+              favourites: result.length == 0
+                  ? new List()
+                  : result
+                      .map(
+                        (x) => new Favourite(
+                          pokemonId: x["favouritePokemonId"],
+                        ),
+                      )
+                      .toList());
 
           onSuccess?.call(data);
         },
