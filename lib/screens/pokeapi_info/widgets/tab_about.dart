@@ -5,7 +5,6 @@ import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../../configs/AppColors.dart';
-import '../../../models/pokemon.dart';
 
 class PokeapiAbout extends StatefulWidget {
   PokeapiAbout({Key key}) : super(key: key);

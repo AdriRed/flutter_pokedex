@@ -7,7 +7,6 @@ import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/widgets/pokemon_api_card.dart';
 import 'package:provider/provider.dart';
 
-import '../../../models/pokemon.dart';
 import '../../../widgets/animated_fade.dart';
 import '../../../widgets/animated_rotation.dart';
 import '../../../widgets/animated_slide.dart';

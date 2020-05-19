@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:pokedex/apimodels/PokemonSpecies.dart';
 import 'package:pokedex/consumers/ApiConsumer.dart';
 
-import '../../models/pokemon.dart';
-
 class PokeapiInfoArguments extends ChangeNotifier {
   PokeapiInfoArguments({this.index, this.pokemons});
 

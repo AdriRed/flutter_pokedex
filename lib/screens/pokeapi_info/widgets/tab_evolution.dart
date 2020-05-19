@@ -9,7 +9,6 @@ import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../../configs/AppColors.dart';
-import '../../../models/pokemon.dart';
 
 class PokemonBall extends StatelessWidget {
   PokemonBall(this._consumer, {Key key}) : super(key: key);

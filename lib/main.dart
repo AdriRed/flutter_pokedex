@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
-import 'package:pokedex/models/pokemon.dart';
 import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/screens/pokeapi_info/pokeapi_info.dart';
 import 'package:pokedex/screens/pokedex_api/pokedex_api.dart';
@@ -16,7 +15,6 @@ import 'widgets/fade_page_route.dart';
 void main() => runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => PokemonModel()),
           ChangeNotifierProvider(
             create: (context) => PokeapiModel(),
           ),
