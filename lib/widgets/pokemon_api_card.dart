@@ -24,24 +24,23 @@ class PokemonApiCard extends StatefulWidget {
   final int index;
   final Function onPress;
   final ApiConsumer<PokemonSpecies> pokemon;
-
-  PokemonApiCard(
-    this.pokemon, {
-    @required this.index,
-    Key key,
-    this.onPress,
-  }) : super(key: key);
+  final double heigth;
+  PokemonApiCard(this.pokemon,
+      {@required this.index, Key key, this.onPress, this.heigth})
+      : super(key: key);
 
   @override
   _PokemonApiCardState createState() =>
-      _PokemonApiCardState(this.pokemon, this.index, onPress);
+      _PokemonApiCardState(this.pokemon, this.index, onPress, this.heigth);
 }
 
 class _PokemonApiCardState extends State<PokemonApiCard> {
-  _PokemonApiCardState(
-      ApiConsumer<PokemonSpecies> consumer, this.index, this.onPress) {
+  _PokemonApiCardState(ApiConsumer<PokemonSpecies> consumer, this.index,
+      this.onPress, this.heigth) {
     _consumer = consumer;
   }
+
+  final double heigth;
 
   final int index;
   final Function onPress;
@@ -179,7 +178,7 @@ class _PokemonApiCardState extends State<PokemonApiCard> {
 
     return LayoutBuilder(
       builder: (context, constrains) {
-        final itemHeight = constrains.maxHeight;
+        var itemHeight = this.heigth ?? constrains.maxHeight;
         // return _buildBox(backcolor: AppColors.lightGrey);
         return FutureBuilder(
           future: _consumer
