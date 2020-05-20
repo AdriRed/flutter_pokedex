@@ -6,11 +6,18 @@ import 'package:provider/provider.dart';
 class SessionModel extends ChangeNotifier {
   UserData _user;
   FavouritesData _favourites;
+  int _customIndex;
+  int _favouritesIndex;
+
+  Favourite get selectedFavourite =>
+      favouritesData.favourites[_favouritesIndex];
+  // Favourite get selectedCustom => favouritesData.favourites[_customIndex];
 
   bool get hasUserData => userData != null;
   bool get hasFavouritesData => _favourites != null;
   UserData get userData => _user;
   FavouritesData get favouritesData => _favourites;
+  int get favouritesIndex => _favouritesIndex;
 
   static SessionModel of(BuildContext context, {bool listen = false}) =>
       Provider.of<SessionModel>(context, listen: listen);
@@ -51,14 +58,12 @@ class SessionModel extends ChangeNotifier {
     return setFavouritesData(null);
   }
 
-  int _favouritesIndex;
   void setFavouritesIndex(int index) {
     _favouritesIndex = index;
 
     notifyListeners();
   }
 
-  int _customIndex;
   void setCustomIndex(int index) {
     _customIndex = index;
 

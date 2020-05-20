@@ -122,9 +122,8 @@ class _FavouritesPageState extends State<FavouritesPage>
               list[index].species,
               index: index,
               onPress: () {
-                log("favourites " + index.toString());
-                // pokeapiModel.setSelectedIndex(index);
-                // Navigator.of(context).pushNamed("/pokeapi-info");
+                sessionModel.setFavouritesIndex(index);
+                Navigator.of(context).pushNamed("/favourites-info");
               },
             ),
           ),
