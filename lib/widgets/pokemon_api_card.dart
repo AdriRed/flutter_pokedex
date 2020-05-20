@@ -224,11 +224,18 @@ class PokemonApiCard extends StatelessWidget {
 }
 
 class PokemonApiCardType extends StatelessWidget {
-  const PokemonApiCardType(this.label, {Key key, this.large = false})
+  const PokemonApiCardType(this.label,
+      {Key key,
+      this.large = false,
+      this.backcolor = Colors.white,
+      this.opacity = 0.2,
+      this.textColor = Colors.white})
       : super(key: key);
 
   final String label;
   final bool large;
+  final Color backcolor, textColor;
+  final double opacity;
 
   @override
   Widget build(BuildContext context) {
@@ -243,7 +250,7 @@ class PokemonApiCardType extends StatelessWidget {
             ? null
             : ShapeDecoration(
                 shape: StadiumBorder(),
-                color: Colors.white.withOpacity(0.2),
+                color: backcolor.withOpacity(opacity),
               ),
         child: label == ""
             ? Container(height: large ? 12 : 8)
@@ -253,7 +260,7 @@ class PokemonApiCardType extends StatelessWidget {
                   fontSize: large ? 12 : 8,
                   height: 1.3,
                   fontWeight: large ? FontWeight.bold : FontWeight.normal,
-                  color: Colors.white,
+                  color: textColor,
                 ),
               ),
       ),

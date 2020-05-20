@@ -38,8 +38,9 @@ class _CustomsAddPageState extends State<CustomsAddPage>
   void didChangeDependencies() {
     PokeapiModel pokeapiModel = PokeapiModel.of(context, listen: true);
 
-    if (!pokeapiModel.hasData) {
-      pokeapiModel.init().then((_) => this.setState(() => _loading = false));
+    if (!pokeapiModel.hasData || !pokeapiModel.hasTypesData) {
+      Future.wait([pokeapiModel.init(), pokeapiModel.initTypes()])
+          .then((_) => this.setState(() => _loading = false));
     }
 
     super.didChangeDependencies();
@@ -53,7 +54,8 @@ class _CustomsAddPageState extends State<CustomsAddPage>
     var rng = new Math.Random();
     _poke1 = rng.nextInt(152) + 1;
     _poke2 = rng.nextInt(152) + 1;
-
+    _type1 = 1;
+    _type2 = 1;
     super.initState();
   }
 
@@ -134,197 +136,261 @@ class _CustomsAddPageState extends State<CustomsAddPage>
   double _width;
 
   Widget _form(BuildContext context, double height, double width) {
-    return Form(
-      key: _formKey,
-      child: ListView(children: <Widget>[
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 35),
-            child: Text(
-              "Give it some name",
-              style: TextStyle(
-                fontSize: 18,
-                height: 0.5,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 15,
-        ),
-        _textbox(
-          icon: Icons.adb,
-          placeholder: "Name",
-          onChanged: (txt) => _name = txt,
-        ),
-        SizedBox(
-          height: 35,
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 35),
-            child: Text(
-              "and its appearance will come from...",
-              style: TextStyle(
-                fontSize: 18,
-                height: 0.5,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Radio(
-              value: 0,
-              groupValue: _appearance,
-              onChanged: (v) {
-                if (_appearance != v)
-                  setState(() {
-                    _appearance = v;
-                  });
-              },
-            ),
-            Text(
-              "my Gallery",
-              style: TextStyle(
-                fontSize: 15,
-                height: 0.5,
-                fontWeight: FontWeight.w500,
+    return Consumer<PokeapiModel>(
+      builder: (context, value, child) {
+        return Form(
+          key: _formKey,
+          child: ListView(children: <Widget>[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 35),
+                child: Text(
+                  "Give it some name",
+                  style: TextStyle(
+                    fontSize: 18,
+                    height: 0.5,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
               ),
             ),
             SizedBox(
-              width: 20,
+              height: 15,
             ),
-            Radio(
-              value: 1,
-              groupValue: _appearance,
-              onChanged: (v) {
-                if (_appearance != v)
-                  setState(() {
-                    _appearance = v;
-                  });
-              },
+            _textbox(
+              icon: Icons.adb,
+              placeholder: "Name",
+              onChanged: (txt) => _name = txt,
             ),
-            Text(
-              "a FUSION",
-              style: TextStyle(
-                fontSize: 15,
-                height: 0.5,
-                fontWeight: FontWeight.w500,
+            SizedBox(
+              height: 35,
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 35),
+                child: Text(
+                  "and its appearance will come from...",
+                  style: TextStyle(
+                    fontSize: 18,
+                    height: 0.5,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
               ),
             ),
-          ],
-        ),
-        _appearance == 0
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _galleryPhoto == null
-                      ? Container(
-                          height: 128,
-                          width: 128,
-                          child: Center(
-                            child: Icon(Icons.cancel),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Radio(
+                  value: 0,
+                  groupValue: _appearance,
+                  onChanged: (v) {
+                    if (_appearance != v)
+                      setState(() {
+                        _appearance = v;
+                      });
+                  },
+                ),
+                Text(
+                  "my Gallery",
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 0.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Radio(
+                  value: 1,
+                  groupValue: _appearance,
+                  onChanged: (v) {
+                    if (_appearance != v)
+                      setState(() {
+                        _appearance = v;
+                      });
+                  },
+                ),
+                Text(
+                  "a FUSION",
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 0.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            _appearance == 0
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _galleryPhoto == null
+                          ? Container(
+                              height: 128,
+                              width: 128,
+                              child: Center(
+                                child: Icon(Icons.cancel),
+                              ),
+                              decoration: BoxDecoration(color: Colors.grey),
+                            )
+                          : Image.memory(
+                              new Uint8List.fromList(_galleryPhoto),
+                              height: 128,
+                            ),
+                      Container(
+                        // padding: EdgeInsets.symmetric(vertical: 30, horizontal: 50),
+                        child: OutlineButton(
+                          child: Text(
+                            "Change photo",
+                            style: TextStyle(
+                              color: AppColors.blue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
                           ),
-                          decoration: BoxDecoration(color: Colors.grey),
-                        )
-                      : Image.memory(
-                          new Uint8List.fromList(_galleryPhoto),
-                          height: 128,
+                          onPressed: () async {
+                            var image = await ImagePicker.pickImage(
+                                source: ImageSource.gallery);
+                            if (image != null)
+                              setState(() {
+                                _galleryPhoto = image.readAsBytesSync();
+                              });
+                          },
+                          textTheme: ButtonTextTheme.accent,
+                          borderSide: BorderSide(
+                            color: AppColors.blue,
+                            width: 2,
+                          ),
                         ),
-                  Container(
-                    // padding: EdgeInsets.symmetric(vertical: 30, horizontal: 50),
-                    child: OutlineButton(
-                      child: Text(
-                        "Change photo",
-                        style: TextStyle(
-                          color: AppColors.blue,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
-                      ),
-                      onPressed: () async {
-                        var image = await ImagePicker.pickImage(
-                            source: ImageSource.gallery);
-                        if (image != null)
-                          setState(() {
-                            _galleryPhoto = image.readAsBytesSync();
-                          });
-                      },
-                      textTheme: ButtonTextTheme.accent,
-                      borderSide: BorderSide(
-                        color: AppColors.blue,
-                        width: 2,
-                      ),
-                    ),
+                      )
+                    ],
                   )
-                ],
-              )
-            : _loading
-                ? CircularProgressIndicator()
-                : _pokemonFusion(height, width)
-      ]),
+                : _loading
+                    ? CircularProgressIndicator()
+                    : _pokemonFusion(value, height, width),
+            SizedBox(
+              height: 15,
+            ),
+            _loading
+                ? LinearProgressIndicator()
+                : _pokemonTypes(value, height, width),
+          ]),
+        );
+      },
     );
   }
 
-  Widget _pokemonFusion(double height, double width) {
-    return Consumer<PokeapiModel>(
-      builder: (context, value, child) {
-        return Column(
-          children: <Widget>[
-            Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  _pokemonFusionChooser(context, (id) {
-                    this.setState(() => _poke1 = id);
-                  }, value, _poke1, height, width),
-                  SizedBox(
-                    width: 25,
-                    child: Icon(Icons.compare_arrows),
-                  ),
-                  _pokemonFusionChooser(context, (id) {
-                    this.setState(() => _poke2 = id);
-                  }, value, _poke2, height, width),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            CachedNetworkImage(
-              imageUrl: "https://images.alexonsager.net/pokemon/fused/" +
-                  _poke2.toString() +
-                  "/" +
-                  _poke2.toString() +
-                  "." +
-                  _poke1.toString() +
-                  ".png",
-              placeholder: (ctx, str) => Image.asset(
-                "assets/images/8bit-pokeball.png",
-                filterQuality: FilterQuality.none,
-                fit: BoxFit.contain,
-                width: height * 0.15,
-                height: height * 0.15,
-                alignment: Alignment.bottomRight,
-              ),
-              placeholderFadeInDuration: Duration(milliseconds: 250),
-              imageBuilder: (context, imageProvider) => Image(
-                image: imageProvider,
-                fit: BoxFit.contain,
-                width: height * 0.15,
-                height: height * 0.15,
-                alignment: Alignment.bottomRight,
-              ),
-            ),
-          ],
-        );
+  int _type1;
+  int _type2;
+
+  Widget _pokemonTypes(PokeapiModel value, double height, double width) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          width: width * 0.4,
+          child: _pokemonTypeDropdown(value, _type1, (val) {
+            _type1 = val;
+          }),
+        ),
+        SizedBox(
+          width: 30,
+        ),
+        Container(
+          width: width * 0.4,
+          child: _pokemonTypeDropdown(value, _type2, (val) {
+            _type2 = val;
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _pokemonTypeDropdown(
+      PokeapiModel model, int selectedValue, Function(int val) onchange) {
+    return DropdownButton<int>(
+      value: selectedValue,
+      icon: Icon(Icons.dehaze),
+      iconSize: 24,
+      elevation: 16,
+      style: TextStyle(color: Colors.deepPurple),
+      onChanged: (int newValue) {
+        setState(() {
+          onchange(newValue);
+        });
       },
+      isExpanded: true,
+      items: model.pokemonTypes.toList().map((x) => x.info).map((type) {
+        return DropdownMenuItem<int>(
+            value: type.id,
+            child: Text(
+              type.names["es"],
+            )
+            // child: PokemonApiCardType(
+            //   type.names["es"],
+            //   large: true,
+            //   backcolor: AppColors.types[type.id - 1],
+            //   textColor: Colors.black,
+            //   opacity: 1,
+            // ),
+            );
+      }).toList(),
+    );
+  }
+
+  Widget _pokemonFusion(PokeapiModel value, double height, double width) {
+    return Column(
+      children: <Widget>[
+        Container(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              _pokemonFusionChooser(context, (id) {
+                this.setState(() => _poke1 = id);
+              }, value, _poke1, height, width),
+              SizedBox(
+                width: 25,
+                child: Icon(Icons.compare_arrows),
+              ),
+              _pokemonFusionChooser(context, (id) {
+                this.setState(() => _poke2 = id);
+              }, value, _poke2, height, width),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        CachedNetworkImage(
+          imageUrl: "https://images.alexonsager.net/pokemon/fused/" +
+              _poke2.toString() +
+              "/" +
+              _poke2.toString() +
+              "." +
+              _poke1.toString() +
+              ".png",
+          placeholder: (ctx, str) => Image.asset(
+            "assets/images/8bit-pokeball.png",
+            filterQuality: FilterQuality.none,
+            fit: BoxFit.contain,
+            width: height * 0.15,
+            height: height * 0.15,
+            alignment: Alignment.bottomRight,
+          ),
+          placeholderFadeInDuration: Duration(milliseconds: 250),
+          imageBuilder: (context, imageProvider) => Image(
+            image: imageProvider,
+            fit: BoxFit.contain,
+            width: height * 0.15,
+            height: height * 0.15,
+            alignment: Alignment.bottomRight,
+          ),
+        ),
+      ],
     );
   }
 
