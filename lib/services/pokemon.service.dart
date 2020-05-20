@@ -6,7 +6,8 @@ import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/services/token.handler.dart';
 
 class PokemonHelper {
-  static Future getFavouites(Function onSuccess, Function onFailure) async {
+  static Future getFavouites(Function(FavouritesData data) onSuccess,
+      Function(String body) onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.get,
         url: '/api/pokemon/favourites',
@@ -35,8 +36,8 @@ class PokemonHelper {
     return ApiHelper.call(options);
   }
 
-  static Future addFavourite(
-      int id, Function onSuccess, Function onFailure) async {
+  static Future addFavourite(int id, Function(Favourite favourite) onSuccess,
+      Function(String body) onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.post,
         url: '/api/pokemon/favourites',
@@ -59,8 +60,8 @@ class PokemonHelper {
     return ApiHelper.call(options);
   }
 
-  static Future removeFavourite(
-      int id, Function onSuccess, Function onFailure) async {
+  static Future removeFavourite(int id, Function(Favourite favourite) onSuccess,
+      Function(String body) onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.delete,
         url: '/api/pokemon/favourites/' + id.toString(),

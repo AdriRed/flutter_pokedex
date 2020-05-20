@@ -5,8 +5,11 @@ import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/services/token.handler.dart';
 
 class AccountHelper {
-  static Future login(String user, String password, Function onSuccess,
-      Function onFailure) async {
+  static Future login(
+      String user,
+      String password,
+      Function(UserData data) onSuccess,
+      Function(String reason) onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.post,
         url: '/api/account/login',
@@ -29,8 +32,12 @@ class AccountHelper {
     return ApiHelper.call(options);
   }
 
-  static Future create(String user, String password, String repeated,
-      Function onSuccess, Function onFailure) async {
+  static Future create(
+      String user,
+      String password,
+      String repeated,
+      Function(UserData data) onSuccess,
+      Function(String reason) onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.post,
         url: '/api/account/register',
@@ -58,8 +65,8 @@ class AccountHelper {
     return ApiHelper.call(options);
   }
 
-  static Future edit(
-      UserData data, Function onSuccess, Function onFailure) async {
+  static Future edit(UserData data, Function(UserData data) onSuccess,
+      Function(String reason) onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.put,
         url: '/api/account/edit',
@@ -88,8 +95,11 @@ class AccountHelper {
     return ApiHelper.call(options);
   }
 
-  static Future changePassword(String newP, String repeatP, Function onSuccess,
-      Function onFailure) async {
+  static Future changePassword(
+      String newP,
+      String repeatP,
+      Function(UserData data) onSuccess,
+      Function(String reason) onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.put,
         url: '/api/account/changepassword',
@@ -117,7 +127,8 @@ class AccountHelper {
     return ApiHelper.call(options);
   }
 
-  static Future self(Function onSuccess, Function onFailure) async {
+  static Future self(Function(UserData data) onSuccess,
+      Function(String reason) onFailure) async {
     ApiOptions options = ApiOptions(
         method: ApiOptionsMethods.get,
         url: '/api/account/self',

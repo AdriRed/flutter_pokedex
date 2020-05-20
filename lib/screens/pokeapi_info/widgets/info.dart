@@ -42,6 +42,9 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
   AnimationController _slideController;
   GlobalKey _targetTextKey = GlobalKey();
 
+  bool _loggedIn;
+  bool _loadedFavourites;
+
   @override
   dispose() {
     _slideController?.dispose();
@@ -74,6 +77,34 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
 
       textDiffLeft = targetTextPosition.dx - currentTextPosition.dx;
       textDiffTop = targetTextPosition.dy - currentTextPosition.dy;
+    });
+
+    _loggedIn = false;
+    _loadedFavourites = false;
+
+    TokenHandler.isLoggedIn.then((value) {
+      this.setState(() {
+        _loggedIn = value;
+      });
+      if (value) {
+        if (!SessionModel.of(context).hasFavouritesData)
+          PokemonHelper.getFavouites(
+            (data) {
+              SessionModel.of(context)
+                  .setFavouritesData(data)
+                  .then((_) => this.setState(() {
+                        _loadedFavourites = true;
+                      }));
+            },
+            (_) {
+              log("Error loading favourites");
+            },
+          );
+        else
+          this.setState(() {
+            _loadedFavourites = true;
+          });
+      }
     });
 
     super.initState();
@@ -117,48 +148,30 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
                 child: Icon(Icons.arrow_back, color: Colors.white),
                 onTap: Navigator.of(context).pop,
               ),
-              Consumer2<PokeapiModel, SessionModel>(
-                builder: (context, pokemon, session, child) {
-                  return FutureBuilder<bool>(
-                    future: TokenHandler.isLoggedIn,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done ||
-                          !snapshot.data) return Container();
-                      var button = () => session.favouritesData.favourites.any(
-                              (x) =>
-                                  x.pokemonId == pokemon.pokemonSpecies.info.id)
-                          ? GestureDetector(
-                              onTap: () => this._removeFromFavourites(
-                                  pokemon.pokemonSpecies.info.id),
-                              child: Icon(
-                                Icons.favorite,
-                                color: Colors.white,
-                              ),
-                            )
-                          : GestureDetector(
-                              onTap: () => this._addToFavourites(
-                                  pokemon.pokemonSpecies.info.id),
-                              child: Icon(
-                                Icons.favorite_border,
-                                color: Colors.white,
-                              ),
-                            );
-                      if (session.hasFavouritesData) return button();
-                      return FutureBuilder(
-                        future: PokemonHelper.getFavouites(
-                            (data) => SessionModel.of(context)
-                                .setFavouritesData(data),
-                            (_) => {log("Error loading favourites")}),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState != ConnectionState.done)
-                            return Container();
-                          return button();
-                        },
-                      );
-                    },
-                  );
-                },
-              )
+              _loggedIn && _loadedFavourites
+                  ? Consumer2<PokeapiModel, SessionModel>(
+                      builder: (context, pokemon, session, child) {
+                        return session.favouritesData.favourites.any((x) =>
+                                x.pokemonId == pokemon.pokemonSpecies.info.id)
+                            ? GestureDetector(
+                                onTap: () => this._removeFromFavourites(
+                                    pokemon.pokemonSpecies.info.id),
+                                child: Icon(
+                                  Icons.favorite,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : GestureDetector(
+                                onTap: () => this._addToFavourites(
+                                    pokemon.pokemonSpecies.info.id),
+                                child: Icon(
+                                  Icons.favorite_border,
+                                  color: Colors.white,
+                                ),
+                              );
+                      },
+                    )
+                  : Container()
             ],
           ),
           // This widget just sit here for easily calculate the new position of
