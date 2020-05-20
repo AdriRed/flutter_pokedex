@@ -22,6 +22,8 @@ class PokeapiModel extends ChangeNotifier {
   ApiConsumer<PokemonSpecies> get pokemonSpecies =>
       _pokemons.info.entries[_selectedIndex].species;
 
+  PokeIndex get pokeIndex => _pokemons.info;
+
   int get index => _selectedIndex;
 
   static PokeapiModel of(BuildContext context, {bool listen = false}) =>

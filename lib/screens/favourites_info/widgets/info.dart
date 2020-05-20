@@ -1,14 +1,24 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pokedex/apimodels/PokemonSpecies.dart';
+import 'package:pokedex/consumers/ApiConsumer.dart';
+import 'package:pokedex/models/pokeapi_model.dart';
+import 'package:pokedex/models/session.model.dart';
+import 'package:pokedex/services/pokemon.service.dart';
+import 'package:pokedex/services/token.handler.dart';
+import 'package:pokedex/widgets/pokemon_api_card.dart';
 import 'package:provider/provider.dart';
 
-import '../../../models/pokemon.dart';
 import '../../../widgets/animated_fade.dart';
 import '../../../widgets/animated_rotation.dart';
 import '../../../widgets/animated_slide.dart';
 import '../../../widgets/pokemon_type.dart';
 import 'decoration_box.dart';
+
+import '../../../helpers/HelperMethods.dart';
 
 class PokemonOverallInfo extends StatefulWidget {
   const PokemonOverallInfo();
@@ -32,8 +42,11 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
   AnimationController _slideController;
   GlobalKey _targetTextKey = GlobalKey();
 
+  bool _loggedIn;
+  bool _loadedFavourites;
+
   @override
-  dispose() {
+  void dispose() {
     _slideController?.dispose();
     _rotateController?.dispose();
     _pageController?.dispose();
@@ -66,21 +79,54 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
       textDiffTop = targetTextPosition.dy - currentTextPosition.dy;
     });
 
+    _loggedIn = false;
+    _loadedFavourites = false;
+
+    TokenHandler.isLoggedIn.then((value) {
+      this.setState(() {
+        _loggedIn = value;
+      });
+      if (value) {
+        if (!SessionModel.of(context).hasFavouritesData)
+          PokemonHelper.getFavouites(
+            (data) {
+              SessionModel.of(context)
+                  .setFavouritesData(data)
+                  .then((_) => this.setState(() {
+                        _loadedFavourites = true;
+                      }));
+            },
+            (_) {
+              log("Error loading favourites");
+            },
+          );
+        else
+          this.setState(() {
+            _loadedFavourites = true;
+          });
+      }
+    });
+
     super.initState();
   }
 
+  /*model.pokeIndex.entries
+      .firstWhere((e) =>
+          e.id == session.selectedFavourite.pokemonId)
+      .species
+      .info*/
   @override
   void didChangeDependencies() {
     if (_pageController == null) {
-      PokemonModel pokemonModel = PokemonModel.of(context);
+      var pokeapiModel = SessionModel.of(context);
 
       _pageController = PageController(
-          viewportFraction: 0.6, initialPage: pokemonModel.index);
+          viewportFraction: 0.6, initialPage: pokeapiModel.favouritesIndex);
       _pageController.addListener(() {
         int next = _pageController.page.round();
 
-        if (pokemonModel.index != next) {
-          pokemonModel.setSelectedIndex(next);
+        if (pokeapiModel.favouritesIndex != next) {
+          pokeapiModel.setFavouritesIndex(next);
         }
       });
     }
@@ -107,7 +153,7 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
                 child: Icon(Icons.arrow_back, color: Colors.white),
                 onTap: Navigator.of(context).pop,
               ),
-              Icon(Icons.favorite_border, color: Colors.white),
+              Container()
             ],
           ),
           // This widget just sit here for easily calculate the new position of
@@ -129,7 +175,7 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
     );
   }
 
-  Widget _buildPokemonName(Pokemon pokemon) {
+  Widget _buildPokemonName(PokemonSpecies pokemon) {
     final cardScrollController = Provider.of<AnimationController>(context);
     final fadeAnimation =
         Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
@@ -149,11 +195,12 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
               return Transform.translate(
                 offset: Offset(textDiffLeft * value, textDiffTop * value),
                 child: Hero(
-                  tag: pokemon.name,
+                  tag: pokemon?.names?.tryGetValue("es") ??
+                      "not-loaded-pokemon-name",
                   child: Material(
                     color: Colors.transparent,
                     child: Text(
-                      pokemon.name,
+                      pokemon?.names?.tryGetValue("es") ?? "",
                       key: _currentTextKey,
                       style: TextStyle(
                         color: Colors.white,
@@ -171,11 +218,11 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
             child: AnimatedSlide(
               animation: _slideController,
               child: Hero(
-                tag: pokemon.id,
+                tag: pokemon?.id ?? "not-loaded-id",
                 child: Material(
                   color: Colors.transparent,
                   child: Text(
-                    pokemon.id,
+                    pokemon?.id?.toString() ?? "",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w900,
@@ -191,7 +238,7 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
     );
   }
 
-  Widget _buildPokemonTypes(Pokemon pokemon) {
+  Widget _buildPokemonTypes(PokemonSpecies pokemon) {
     final cardScrollController = Provider.of<AnimationController>(context);
     final fadeAnimation =
         Tween(begin: 1.0, end: 0.0).animate(cardScrollController);
@@ -206,15 +253,19 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Row(
-              children: pokemon.types
-                  .map((type) =>
-                      Hero(tag: type, child: PokemonType(type, large: true)))
-                  .toList(),
+              children: pokemon?.defaultVariety?.pokemon?.info?.types
+                      ?.map((type) => Hero(
+                          tag: type,
+                          child: PokemonApiCardType(
+                              type?.type?.info?.names?.tryGetValue("es") ?? "",
+                              large: true)))
+                      ?.toList() ??
+                  [PokemonApiCardType("", large: true)],
             ),
             AnimatedSlide(
               animation: _slideController,
               child: Text(
-                pokemon.category,
+                pokemon?.genera?.tryGetValue("es") ?? "",
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
             ),
@@ -224,8 +275,8 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
     );
   }
 
-  Widget _buildPokemonSlider(
-      BuildContext context, Pokemon pokemon, List<Pokemon> pokemons) {
+  Widget _buildPokemonSlider(BuildContext context, PokemonSpecies pokemon,
+      List<ApiConsumer<PokemonSpecies>> pokemons) {
     final screenSize = MediaQuery.of(context).size;
     final cardScrollController = Provider.of<AnimationController>(context);
     final fadeAnimation = Tween(begin: 1.0, end: 0.0).animate(
@@ -239,7 +290,7 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
       ),
     );
 
-    final selectedIndex = PokemonModel.of(context).index;
+    final selectedIndex = PokeapiModel.of(context).index;
 
     return AnimatedFade(
       animation: fadeAnimation,
@@ -265,10 +316,16 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
               controller: _pageController,
               itemCount: pokemons.length,
               onPageChanged: (index) {
-                PokemonModel.of(context).setSelectedIndex(index);
+                PokeapiModel.of(context).setSelectedIndex(index);
               },
               itemBuilder: (context, index) => Hero(
-                tag: pokemons[index].image,
+                tag: pokemons[index]
+                        .info
+                        ?.defaultVariety
+                        ?.pokemon
+                        ?.info
+                        ?.hdSprite ??
+                    "not-loaded-specie-" + index.toString(),
                 child: AnimatedPadding(
                   duration: Duration(milliseconds: 600),
                   curve: Curves.easeOutQuint,
@@ -277,16 +334,50 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
                     bottom:
                         selectedIndex == index ? 0 : screenSize.height * 0.04,
                   ),
-                  child: CachedNetworkImage(
-                    imageUrl: pokemons[index].image,
-                    imageBuilder: (context, image) => Image(
-                      image: image,
-                      width: screenSize.height * 0.28,
-                      height: screenSize.height * 0.28,
-                      alignment: Alignment.bottomCenter,
-                      color: selectedIndex == index ? null : Colors.black26,
-                    ),
-                  ),
+                  child: pokemons[index]
+                              .info
+                              ?.defaultVariety
+                              ?.pokemon
+                              ?.info
+                              ?.hdSprite ==
+                          null
+                      ? Image.asset(
+                          "assets/images/8bit-pokeball.png",
+                          filterQuality: FilterQuality.none,
+                          fit: BoxFit.contain,
+                          width: screenSize.height * 0.28,
+                          height: screenSize.height * 0.28,
+                          alignment: Alignment.bottomCenter,
+                          color: selectedIndex == index ? null : Colors.black26,
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: pokemons[index]
+                              .info
+                              .defaultVariety
+                              .pokemon
+                              .info
+                              .hdSprite,
+                          placeholder: (ctx, str) => Image.asset(
+                            "assets/images/8bit-pokeball.png",
+                            filterQuality: FilterQuality.none,
+                            fit: BoxFit.contain,
+                            width: screenSize.height * 0.28,
+                            height: screenSize.height * 0.28,
+                            alignment: Alignment.bottomCenter,
+                            color:
+                                selectedIndex == index ? null : Colors.black26,
+                          ),
+                          placeholderFadeInDuration:
+                              Duration(milliseconds: 250),
+                          imageBuilder: (context, image) => Image(
+                            image: image,
+                            width: screenSize.height * 0.28,
+                            height: screenSize.height * 0.28,
+                            alignment: Alignment.bottomCenter,
+                            color:
+                                selectedIndex == index ? null : Colors.black26,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -352,16 +443,36 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
     return Stack(
       children: [
         ..._buildDecorations(),
-        Consumer<PokemonModel>(
-          builder: (_, model, child) => Column(
+        Consumer2<PokeapiModel, SessionModel>(
+          builder: (_, model, session, child) => Column(
             children: <Widget>[
               _buildAppBar(),
               SizedBox(height: 9),
-              _buildPokemonName(model.pokemon),
+              _buildPokemonName(model.pokeIndex.entries
+                  .firstWhere((element) =>
+                      element.id == session.selectedFavourite.pokemonId)
+                  .species
+                  .info),
               SizedBox(height: 9),
-              _buildPokemonTypes(model.pokemon),
+              _buildPokemonTypes(model.pokeIndex.entries
+                  .firstWhere((element) =>
+                      element.id == session.selectedFavourite.pokemonId)
+                  .species
+                  .info),
               SizedBox(height: 25),
-              _buildPokemonSlider(context, model.pokemon, model.pokemons),
+              _buildPokemonSlider(
+                context,
+                model.pokeIndex.entries
+                    .firstWhere((element) =>
+                        element.id == session.selectedFavourite.pokemonId)
+                    .species
+                    .info,
+                session.favouritesData.favourites
+                    .map((x) => model.pokeIndex.entries
+                        .firstWhere((element) => element.id == x.pokemonId)
+                        .species)
+                    .toList(),
+              )
             ],
           ),
         ),

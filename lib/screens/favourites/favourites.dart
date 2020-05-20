@@ -2,23 +2,29 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
+import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/screens/pokedex_api/widgets/generation_modal.dart';
 import 'package:pokedex/screens/pokedex_api/widgets/search_modal.dart';
+import 'package:pokedex/services/pokemon.service.dart';
+import 'package:pokedex/services/token.handler.dart';
 import 'package:pokedex/widgets/fab.dart';
 import 'package:pokedex/widgets/poke_container.dart';
 import 'package:pokedex/widgets/pokemon_api_card.dart';
 import 'package:provider/provider.dart';
 
-class PokedexApi extends StatefulWidget {
+class FavouritesPage extends StatefulWidget {
+  FavouritesPage({Key key}) : super(key: key);
+
   @override
-  _PokedexApiState createState() => _PokedexApiState();
+  _FavouritesPageState createState() => _FavouritesPageState();
 }
 
-class _PokedexApiState extends State<PokedexApi>
+class _FavouritesPageState extends State<FavouritesPage>
     with SingleTickerProviderStateMixin {
   Animation<double> _animation;
   AnimationController _animationController;
   bool _loading;
+  bool _loggedIn;
 
   @override
   void initState() {
@@ -30,17 +36,45 @@ class _PokedexApiState extends State<PokedexApi>
     final curvedAnimation =
         CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+    _loggedIn = false;
 
-    _loading = !PokeapiModel.of(context).hasData;
+    TokenHandler.isLoggedIn.then((value) {
+      if (!value)
+        Navigator.of(context).popAndPushNamed('/login');
+      else
+        this.setState(() {
+          _loggedIn = value;
+          _loading = !value ||
+              !(PokeapiModel.of(context).hasData ||
+                  SessionModel.of(context).hasFavouritesData);
+        });
+    });
+
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    PokeapiModel pokeapiModel = PokeapiModel.of(context, listen: true);
+    if (_loggedIn) {
+      PokeapiModel pokeapiModel = PokeapiModel.of(context, listen: true);
+      SessionModel sessionModel = SessionModel.of(context);
 
-    if (!pokeapiModel.hasData) {
-      pokeapiModel.init().then((_) => this.setState(() => _loading = false));
+      if (!pokeapiModel.hasData || !sessionModel.hasFavouritesData) {
+        Future.wait(
+          [
+            pokeapiModel.init(),
+            PokemonHelper.getFavouites(
+                (data) => sessionModel.setFavouritesData(data),
+                (_) => {log("Error loading favourites")}),
+          ],
+        ).then(
+          (value) => setState(
+            () {
+              _loading = false;
+            },
+          ),
+        );
+      }
     }
 
     super.didChangeDependencies();
@@ -80,28 +114,40 @@ class _PokedexApiState extends State<PokedexApi>
   }
 
   Widget _buildList(BuildContext context) {
-    return Consumer<PokeapiModel>(
-      builder: (context, pokeapiModel, child) => Expanded(
-        child: GridView.builder(
-          physics: BouncingScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 1.4,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
+    if (!_loggedIn)
+      return Expanded(
+        child: Container(),
+      );
+    return Consumer2<PokeapiModel, SessionModel>(
+      builder: (context, pokeapiModel, sessionModel, child) {
+        var list = pokeapiModel.pokeIndex.entries
+            .where((element) => sessionModel.favouritesData.favourites
+                .any((x) => x.pokemonId == element.id))
+            .toList()
+            .reversed
+            .toList();
+        return Expanded(
+          child: GridView.builder(
+            physics: BouncingScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 1.4,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            padding: EdgeInsets.only(left: 28, right: 28, bottom: 58),
+            itemCount: list.length,
+            itemBuilder: (context, index) => PokemonApiCard(
+              list[index].species,
+              index: index,
+              onPress: () {
+                sessionModel.setFavouritesIndex(index);
+                Navigator.of(context).pushNamed("/favourites-info");
+              },
+            ),
           ),
-          padding: EdgeInsets.only(left: 28, right: 28, bottom: 58),
-          itemCount: pokeapiModel.pokemons.length,
-          itemBuilder: (context, index) => PokemonApiCard(
-            pokeapiModel.pokemons[index],
-            index: index,
-            onPress: () {
-              pokeapiModel.setSelectedIndex(index);
-              Navigator.of(context).pushNamed("/pokeapi-info");
-            },
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -157,7 +203,7 @@ class _PokedexApiState extends State<PokedexApi>
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 26.0),
                   child: Text(
-                    "Pokedex API",
+                    "Favourites",
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -174,7 +220,7 @@ class _PokedexApiState extends State<PokedexApi>
 
   @override
   Widget build(BuildContext context) {
-    if (this._loading) {
+    if (this._loading ?? false) {
       return _buildPage(
         context,
         child: Expanded(
