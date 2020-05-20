@@ -6,6 +6,7 @@ import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/screens/pokedex_api/widgets/generation_modal.dart';
 import 'package:pokedex/screens/pokedex_api/widgets/search_modal.dart';
 import 'package:pokedex/services/pokemon.service.dart';
+import 'package:pokedex/services/token.handler.dart';
 import 'package:pokedex/widgets/fab.dart';
 import 'package:pokedex/widgets/poke_container.dart';
 import 'package:pokedex/widgets/pokemon_api_card.dart';
@@ -23,6 +24,7 @@ class _FavouritesPageState extends State<FavouritesPage>
   Animation<double> _animation;
   AnimationController _animationController;
   bool _loading;
+  bool _loggedIn;
 
   @override
   void initState() {
@@ -34,32 +36,45 @@ class _FavouritesPageState extends State<FavouritesPage>
     final curvedAnimation =
         CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+    _loggedIn = false;
 
-    _loading = !(PokeapiModel.of(context).hasData ||
-        SessionModel.of(context).hasFavouritesData);
+    TokenHandler.isLoggedIn.then((value) {
+      if (!value)
+        Navigator.of(context).popAndPushNamed('/login');
+      else
+        this.setState(() {
+          _loggedIn = value;
+          _loading = !value ||
+              !(PokeapiModel.of(context).hasData ||
+                  SessionModel.of(context).hasFavouritesData);
+        });
+    });
+
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    PokeapiModel pokeapiModel = PokeapiModel.of(context, listen: true);
-    SessionModel sessionModel = SessionModel.of(context);
+    if (_loggedIn) {
+      PokeapiModel pokeapiModel = PokeapiModel.of(context, listen: true);
+      SessionModel sessionModel = SessionModel.of(context);
 
-    if (!pokeapiModel.hasData || !sessionModel.hasFavouritesData) {
-      Future.wait(
-        [
-          pokeapiModel.init(),
-          PokemonHelper.getFavouites(
-              (data) => sessionModel.setFavouritesData(data),
-              (_) => {log("Error loading favourites")}),
-        ],
-      ).then(
-        (value) => setState(
-          () {
-            _loading = false;
-          },
-        ),
-      );
+      if (!pokeapiModel.hasData || !sessionModel.hasFavouritesData) {
+        Future.wait(
+          [
+            pokeapiModel.init(),
+            PokemonHelper.getFavouites(
+                (data) => sessionModel.setFavouritesData(data),
+                (_) => {log("Error loading favourites")}),
+          ],
+        ).then(
+          (value) => setState(
+            () {
+              _loading = false;
+            },
+          ),
+        );
+      }
     }
 
     super.didChangeDependencies();
@@ -99,6 +114,10 @@ class _FavouritesPageState extends State<FavouritesPage>
   }
 
   Widget _buildList(BuildContext context) {
+    if (!_loggedIn)
+      return Expanded(
+        child: Container(),
+      );
     return Consumer2<PokeapiModel, SessionModel>(
       builder: (context, pokeapiModel, sessionModel, child) {
         var list = pokeapiModel.pokeIndex.entries
@@ -201,7 +220,7 @@ class _FavouritesPageState extends State<FavouritesPage>
 
   @override
   Widget build(BuildContext context) {
-    if (this._loading) {
+    if (this._loading ?? false) {
       return _buildPage(
         context,
         child: Expanded(

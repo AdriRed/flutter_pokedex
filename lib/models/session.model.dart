@@ -29,6 +29,10 @@ class SessionModel extends ChangeNotifier {
     });
   }
 
+  Future cleanEverything() {
+    return Future.wait([removeUserData(), removeFavouritesData()]);
+  }
+
   Future removeUserData() {
     return setUserData(null);
   }
