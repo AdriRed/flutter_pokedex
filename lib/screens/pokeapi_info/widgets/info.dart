@@ -46,7 +46,7 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
   bool _loadedFavourites;
 
   @override
-  dispose() {
+  void dispose() {
     _slideController?.dispose();
     _rotateController?.dispose();
     _pageController?.dispose();
@@ -193,9 +193,19 @@ class _PokemonOverallInfoState extends State<PokemonOverallInfo>
     );
   }
 
-  void _addToFavourites(int id) {}
+  void _addToFavourites(int id) {
+    PokemonHelper.addFavourite(
+        id,
+        (favourite) => SessionModel.of(context).addFavourite(id),
+        (body) => log("error adding " + id.toString()));
+  }
 
-  void _removeFromFavourites(int id) {}
+  void _removeFromFavourites(int id) {
+    PokemonHelper.removeFavourite(
+        id,
+        (favourite) => SessionModel.of(context).removeFavourite(id),
+        (body) => log("error removing " + id.toString()));
+  }
 
   Widget _buildPokemonName(PokemonSpecies pokemon) {
     final cardScrollController = Provider.of<AnimationController>(context);

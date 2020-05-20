@@ -26,6 +26,20 @@ class SessionModel extends ChangeNotifier {
     return setUserData(null);
   }
 
+  Future addFavourite(int id) {
+    return Future.sync(() {
+      _favourites.favourites.add(new Favourite(pokemonId: id));
+      notifyListeners();
+    });
+  }
+
+  Future removeFavourite(int id) {
+    return Future.sync(() {
+      _favourites.favourites.removeWhere((element) => element.pokemonId == id);
+      notifyListeners();
+    });
+  }
+
   Future setFavouritesData(FavouritesData data) {
     return Future.sync(() {
       _favourites = data;
