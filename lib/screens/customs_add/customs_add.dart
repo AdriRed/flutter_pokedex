@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:math' as Math;
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -130,8 +131,9 @@ class _CustomsAddPageState extends State<CustomsAddPage>
   Uint8List _galleryPhoto;
   Uint8List _fusionPhoto;
   int _appearance = 0;
+  double _width;
 
-  Widget _form(BuildContext context) {
+  Widget _form(BuildContext context, double height, double width) {
     return Form(
       key: _formKey,
       child: ListView(children: <Widget>[
@@ -263,40 +265,120 @@ class _CustomsAddPageState extends State<CustomsAddPage>
                   )
                 ],
               )
-            : _loading ? CircularProgressIndicator() : _pokemonFusion()
+            : _loading
+                ? CircularProgressIndicator()
+                : _pokemonFusion(height, width)
       ]),
     );
   }
 
-  Widget _pokemonFusion() {
+  Widget _pokemonFusion(double height, double width) {
     return Consumer<PokeapiModel>(
       builder: (context, value, child) {
-        return Container(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              _pokemonFusionChooser((id) => null, value, _poke1),
-              SizedBox(
-                width: 15,
+        return Column(
+          children: <Widget>[
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  _pokemonFusionChooser(context, (id) {
+                    this.setState(() => _poke1 = id);
+                  }, value, _poke1, height, width),
+                  SizedBox(
+                    width: 25,
+                    child: Icon(Icons.compare_arrows),
+                  ),
+                  _pokemonFusionChooser(context, (id) {
+                    this.setState(() => _poke2 = id);
+                  }, value, _poke2, height, width),
+                ],
               ),
-              _pokemonFusionChooser((id) => null, value, _poke2),
-            ],
-          ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            CachedNetworkImage(
+              imageUrl: "https://images.alexonsager.net/pokemon/fused/" +
+                  _poke2.toString() +
+                  "/" +
+                  _poke2.toString() +
+                  "." +
+                  _poke1.toString() +
+                  ".png",
+              placeholder: (ctx, str) => Image.asset(
+                "assets/images/8bit-pokeball.png",
+                filterQuality: FilterQuality.none,
+                fit: BoxFit.contain,
+                width: height * 0.15,
+                height: height * 0.15,
+                alignment: Alignment.bottomRight,
+              ),
+              placeholderFadeInDuration: Duration(milliseconds: 250),
+              imageBuilder: (context, imageProvider) => Image(
+                image: imageProvider,
+                fit: BoxFit.contain,
+                width: height * 0.15,
+                height: height * 0.15,
+                alignment: Alignment.bottomRight,
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  Widget _pokemonFusionChooser(
-      Function(int id) onTap, PokeapiModel model, int showingNow) {
+  Widget _pokemonFusionChooser(BuildContext context, Function(int id) onTap,
+      PokeapiModel model, int showingNow, double height, double width) {
     var poke = model.pokemons[showingNow - 1];
+
     return Container(
-      height: 150,
-      width: 150,
+      height: width * 0.3,
+      width: width * 0.4,
       child: PokemonApiCard(
         poke,
         index: showingNow - 1,
-        onPress: () => 1,
+        onPress: () => showDialog<int>(
+          context: context,
+          builder: (context) =>
+              _pokemonFusionDialog(context, model, height, width),
+        ).then(
+          (value) {
+            value = value ?? -1;
+            log(value.toString());
+            if (value != -1) onTap(value);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _pokemonFusionDialog(
+      BuildContext context, PokeapiModel model, double height, double width) {
+    return AlertDialog(
+      scrollable: true,
+      contentPadding: EdgeInsets.all(10),
+      content: Container(
+        height: height * 0.9,
+        width: width * 0.85,
+        child: GridView.builder(
+          padding: EdgeInsets.only(left: 0, right: 0, bottom: 58),
+          physics: BouncingScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 1.4,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
+          itemCount: 151,
+          itemBuilder: (context, index) => PokemonApiCard(
+            model.pokemons[index],
+            index: index,
+            onPress: () {
+              Navigator.of(context).pop(index);
+            },
+          ),
+        ),
       ),
     );
   }
@@ -323,7 +405,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
           ),
           Positioned.fill(
             top: screenHeight * 0.27,
-            child: _form(context),
+            child: _form(context, screenHeight, screenWidth),
           ),
         ],
       ),
