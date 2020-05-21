@@ -353,6 +353,7 @@ class _CustomsPageState extends State<CustomsPage>
   }
 
   bool readed;
+  bool subscribed = false;
 
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController controller;
@@ -362,17 +363,31 @@ class _CustomsPageState extends State<CustomsPage>
     this.setState(() {
       readed = false;
     });
-    controller.scannedDataStream.listen((barcode) {
-      if (readed) return;
+    controller.scannedDataStream.listen(_onReadQr);
+    if (!subscribed) {
       this.setState(() {
-        readed = true;
+        subscribed = true;
       });
-      log(barcode);
-      Navigator.of(context).pop();
-      PokemonHelper.getOthersCustom(barcode, (result) {
+    }
+  }
+
+  void _onReadQr(String barcode) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (readed) return;
+    this.setState(() {
+      readed = true;
+    });
+    Navigator.of(context).pop();
+    log(barcode);
+    PokemonHelper.getOthersCustom(barcode, (result) {
+      if (result.customs.length == 0) {
+        showSnackbar("This user dont have any custom pokemon...");
+      } else
         showDialog(
             context: context,
             child: AlertDialog(
+              title: Text("Custom pokemon of " + result.customs[0].owner),
               content: Container(
                 height: screenHeight * 0.9,
                 width: screenWidth * 0.85,
@@ -380,7 +395,7 @@ class _CustomsPageState extends State<CustomsPage>
                     padding: EdgeInsets.only(left: 0, right: 0, bottom: 58),
                     physics: BouncingScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                      crossAxisCount: 1,
                       childAspectRatio: 1.4,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
@@ -404,8 +419,7 @@ class _CustomsPageState extends State<CustomsPage>
                     }),
               ),
             ));
-      }, (_) => null);
-    });
+    }, (_) => null);
   }
 
   @override

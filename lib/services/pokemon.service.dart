@@ -187,13 +187,9 @@ class PokemonHelper {
                   ? new List()
                   : result
                       .map(
-                        (x) => new Custom(
-                          x["id"],
-                          x["photo"],
-                          x["name"],
-                          x["type1"],
-                          x["type2"],
-                        ),
+                        (x) => new Custom(x["id"], x["photo"], x["name"],
+                            x["type1"], x["type2"],
+                            owner: x["owner"]),
                       )
                       .toList());
 

@@ -134,9 +134,11 @@ class Custom {
   final int id;
   final String photo;
   final String name;
+  final String owner;
   final int type1;
   final int type2;
-  const Custom(this.id, this.photo, this.name, this.type1, this.type2);
+  const Custom(this.id, this.photo, this.name, this.type1, this.type2,
+      {this.owner});
 }
 
 class Favourite {
