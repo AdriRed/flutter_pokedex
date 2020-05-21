@@ -105,6 +105,7 @@ class PokemonHelper {
             new Custom(
               result["id"],
               result["photo"],
+              result["name"],
               result["type1"],
               result["type2"],
             ),
@@ -118,7 +119,7 @@ class PokemonHelper {
   static Future removeCustom(int id, Function(Custom favourite) onSuccess,
       Function(String body) onFailure) async {
     ApiOptions options = ApiOptions(
-        method: ApiOptionsMethods.post,
+        method: ApiOptionsMethods.delete,
         url: '/api/pokemon/custom/' + id.toString(),
         headers: {'Authorization': await TokenHandler.getHeaderToken()},
         onSuccess: (body, code) {
@@ -128,6 +129,7 @@ class PokemonHelper {
             new Custom(
               result["id"],
               result["photo"],
+              result["name"],
               result["type1"],
               result["type2"],
             ),
@@ -141,12 +143,9 @@ class PokemonHelper {
   static Future getMyCustom(Function(CustomsData favourite) onSuccess,
       Function(String body) onFailure) async {
     ApiOptions options = ApiOptions(
-        method: ApiOptionsMethods.post,
+        method: ApiOptionsMethods.get,
         url: '/api/pokemon/custom/self',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': await TokenHandler.getHeaderToken()
-        },
+        headers: {'Authorization': await TokenHandler.getHeaderToken()},
         onSuccess: (body, code) {
           var jsonresult = json.decode(body);
           var result = jsonresult as List<dynamic>;
@@ -158,6 +157,7 @@ class PokemonHelper {
                         (x) => new Custom(
                           x["id"],
                           x["photo"],
+                          x["name"],
                           x["type1"],
                           x["type2"],
                         ),
