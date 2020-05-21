@@ -1,12 +1,15 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/apimodels/Pokemon.dart';
+import 'package:pokedex/apimodels/PokemonBaseType.dart';
 import 'package:pokedex/apimodels/PokemonSpecies.dart';
 import 'package:pokedex/configs/AppColors.dart';
 import 'package:pokedex/consumers/ApiConsumer.dart';
 import 'package:pokedex/consumers/PokemonLoader.dart';
+import 'package:pokedex/models/pokeapi_model.dart';
 
 String _formattedPokeIndex(int index) {
   return "#${((index + 1) / 100).toStringAsFixed(2).replaceAll(".", "")}";
@@ -33,48 +36,43 @@ String capitalizeFirstChar(String text) {
 //   _PokemonApiCardState createState() =>
 //       _PokemonApiCardState(this.pokemon, this.index, onPress, this.heigth);
 // }
-class PokemonApiCard extends StatelessWidget {
+class CustomsApiCard extends StatelessWidget {
 // class _PokemonApiCardState extends State<PokemonApiCard> {
   // _PokemonApiCardState(ApiConsumer<PokemonSpecies> consumer, this.index,
   //     this.onPress, this.heigth) {
   //   _consumer = consumer;
   // }
-  PokemonApiCard(this._consumer,
-      {@required this.index, Key key, this.onPress, this.heigth})
+  CustomsApiCard(
+      {@required this.index,
+      Key key,
+      this.onPress,
+      this.heigth,
+      this.image,
+      this.name,
+      this.type1,
+      this.type2})
       : super(key: key);
 
   final double heigth;
-
+  final String name;
   final int index;
+  final Uint8List image;
+  final PokemonBaseType type1;
+  final PokemonBaseType type2;
   final Function onPress;
   ApiConsumer<PokemonSpecies> _consumer;
 
-  PokemonSpecies get pokemon {
-    if (!_consumer.hasInfo)
-      throw new Exception("Accessing PokemonSpecies but not fetched data!");
-    return _consumer.info;
-  }
-
-  Pokemon defaultVariety() {
-    return pokemon.defaultVariety.pokemon.info;
-  }
-
   List<Widget> _buildTypes() {
-    final widgetTypes = defaultVariety()
-        .types
-        .map((type) => type.type.info)
-        .map(
-          (type) => Hero(
-            tag: pokemon.names["es"] + type.id.toString(),
-            child: PokemonApiCardType(capitalizeFirstChar(type.names["es"])),
-          ),
-        )
-        .expand((item) => [item, SizedBox(height: 6)]);
-
-    return widgetTypes.take(widgetTypes.length - 1).toList();
+    return [
+      PokemonApiCardType(capitalizeFirstChar(type1.names["es"])),
+      SizedBox(
+        height: 6,
+      ),
+      PokemonApiCardType(capitalizeFirstChar(type2.names["es"]))
+    ];
   }
 
-  Widget _buildCardContent(bool types) {
+  Widget _buildCardContent() {
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
@@ -83,11 +81,11 @@ class PokemonApiCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Hero(
-              tag: pokemon.names["es"],
+              tag: this.name + "custom",
               child: Material(
                 color: Colors.transparent,
                 child: Text(
-                  pokemon.names["es"],
+                  this.name,
                   style: TextStyle(
                     fontSize: 14,
                     height: 0.7,
@@ -98,7 +96,7 @@ class PokemonApiCard extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
-            ...(types ? _buildTypes() : []),
+            ..._buildTypes(),
           ],
         ),
       ),
@@ -121,25 +119,13 @@ class PokemonApiCard extends StatelessWidget {
         bottom: 8,
         right: 12,
         child: Hero(
-          tag: defaultVariety().hdSprite,
-          child: CachedNetworkImage(
-            imageUrl: defaultVariety().hdSprite,
-            placeholder: (ctx, str) => Image.asset(
-              "assets/images/8bit-pokeball.png",
-              filterQuality: FilterQuality.none,
-              fit: BoxFit.contain,
-              width: itemHeight * 0.6,
-              height: itemHeight * 0.6,
-              alignment: Alignment.bottomRight,
-            ),
-            placeholderFadeInDuration: Duration(milliseconds: 250),
-            imageBuilder: (context, imageProvider) => Image(
-              image: imageProvider,
-              fit: BoxFit.contain,
-              width: itemHeight * 0.6,
-              height: itemHeight * 0.6,
-              alignment: Alignment.bottomRight,
-            ),
+          tag: "image" + index.toString(),
+          child: Image.memory(
+            this.image,
+            fit: BoxFit.contain,
+            width: itemHeight * 0.6,
+            height: itemHeight * 0.6,
+            alignment: Alignment.bottomRight,
           ),
         ),
       ),
@@ -183,40 +169,26 @@ class PokemonApiCard extends StatelessWidget {
       builder: (context, constrains) {
         var itemHeight = this.heigth ?? constrains.maxHeight;
         // return _buildBox(backcolor: AppColors.lightGrey);
-        return FutureBuilder(
-          future: _consumer
-              .getInfo()
-              .then((x) => x.defaultVariety.pokemon.getInfo())
-              .then((x) =>
-                  Future.wait(x.types.map((type) => type.type.getInfo()))),
-          builder: (ctxData, snapshotData) {
-            if (snapshotData.connectionState != ConnectionState.done) {
-              return _buildBox(
-                  backcolor: AppColors.lightGrey, child: Container());
-            }
-            Color bcolor =
-                AppColors.types[defaultVariety().types.first.type.info.id - 1];
-            return _buildBox(
-              backcolor: bcolor,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: onPress,
-                    splashColor: Colors.white10,
-                    highlightColor: Colors.white10,
-                    child: Stack(
-                      children: [
-                        _buildCardContent(true),
-                        ..._buildDecorations(itemHeight),
-                      ],
-                    ),
-                  ),
+        Color bcolor = AppColors.types[type1.id - 1];
+        return _buildBox(
+          backcolor: bcolor,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onPress,
+                splashColor: Colors.white10,
+                highlightColor: Colors.white10,
+                child: Stack(
+                  children: [
+                    _buildCardContent(),
+                    ..._buildDecorations(itemHeight),
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         );
       },
     );

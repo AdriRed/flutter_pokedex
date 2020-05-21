@@ -13,9 +13,9 @@ class CategoryList extends StatelessWidget {
         crossAxisCount: 2,
         childAspectRatio: 2.45,
         crossAxisSpacing: 10,
-        mainAxisSpacing: 12,
+        mainAxisSpacing: 15,
       ),
-      padding: EdgeInsets.only(left: 28, right: 28, bottom: 10),
+      padding: EdgeInsets.only(left: 28, right: 28, bottom: 35),
       itemCount: categories.length,
       itemBuilder: (context, index) => PokeCategoryCard(
         categories[index],

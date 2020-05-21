@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/models/session.model.dart';
+import 'package:pokedex/screens/customs/customs.dart';
+import 'package:pokedex/screens/customs_add/customs_add.dart';
 import 'package:pokedex/screens/favourites/favourites.dart';
 import 'package:pokedex/screens/favourites_info/favourites_info.dart';
 import 'package:pokedex/screens/pokeapi_info/pokeapi_info.dart';
@@ -52,6 +54,12 @@ class MyApp extends StatelessWidget {
 
       case '/favourites-info':
         return FadeRoute(page: FavouritesInfo());
+
+      case '/customs':
+        return FadeRoute(page: CustomsPage());
+
+      case '/customs-add':
+        return FadeRoute(page: CustomsAddPage());
 
       default:
         return null;

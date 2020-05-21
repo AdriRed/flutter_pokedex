@@ -365,10 +365,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPressed: () async {
                       var image = await ImagePicker.pickImage(
                           source: ImageSource.gallery);
-
-                      setState(() {
-                        _photo = image.readAsBytesSync();
-                      });
+                      if (image != null)
+                        setState(() {
+                          _photo = image.readAsBytesSync();
+                        });
                     },
                     textTheme: ButtonTextTheme.accent,
                     borderSide: BorderSide(
