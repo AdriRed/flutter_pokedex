@@ -41,25 +41,15 @@ class _FavouritesPageState extends State<FavouritesPage>
     TokenHandler.isLoggedIn.then((value) {
       if (!value)
         Navigator.of(context).popAndPushNamed('/login');
-      else
+      else {
+        PokeapiModel pokeapiModel = PokeapiModel.of(context);
+        SessionModel sessionModel = SessionModel.of(context);
         this.setState(() {
           _loggedIn = value;
-          _loading = !value ||
-              !(PokeapiModel.of(context).hasData ||
-                  SessionModel.of(context).hasFavouritesData);
+          _loading = !(value &&
+              pokeapiModel.hasData &&
+              sessionModel.hasFavouritesData);
         });
-    });
-
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    if (_loggedIn) {
-      PokeapiModel pokeapiModel = PokeapiModel.of(context, listen: true);
-      SessionModel sessionModel = SessionModel.of(context);
-
-      if (!pokeapiModel.hasData || !sessionModel.hasFavouritesData) {
         Future.wait(
           [
             pokeapiModel.init(),
@@ -75,9 +65,9 @@ class _FavouritesPageState extends State<FavouritesPage>
           ),
         );
       }
-    }
+    });
 
-    super.didChangeDependencies();
+    super.initState();
   }
 
   void _showSearchModal() {
