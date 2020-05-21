@@ -1,11 +1,13 @@
 import 'dart:developer';
 import 'dart:math' as Math;
+import 'package:http/http.dart' show get;
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pokedex/configs/AppColors.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
+import 'package:pokedex/services/pokemon.service.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/pokemon_api_card.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +33,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
   bool _loading;
   @override
   void dispose() {
+    _textBox.dispose();
     super.dispose();
   }
 
@@ -46,8 +49,10 @@ class _CustomsAddPageState extends State<CustomsAddPage>
     super.didChangeDependencies();
   }
 
+  FocusNode _textBox;
   @override
   void initState() {
+    super.initState();
     _cardHeight = 0;
     _sending = false;
     _loading = !PokeapiModel.of(context).hasData;
@@ -56,7 +61,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
     _poke2 = rng.nextInt(152) + 1;
     _type1 = 1;
     _type2 = 1;
-    super.initState();
+    _textBox = FocusNode();
   }
 
   Widget _buildCard() {
@@ -93,6 +98,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
   Widget _textbox(
       {IconData icon = Icons.text_fields,
       String placeholder = "",
+      FocusNode focus,
       Function(String) validator,
       Function(String) onChanged,
       bool obscureText = false}) {
@@ -111,6 +117,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
           SizedBox(width: 13),
           Expanded(
             child: TextFormField(
+              focusNode: focus,
               decoration: InputDecoration(
                 hintText: placeholder,
                 hintStyle: TextStyle(
@@ -161,6 +168,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
             _textbox(
               icon: Icons.adb,
               placeholder: "Name",
+              focus: _textBox,
               onChanged: (txt) => _name = txt,
             ),
             SizedBox(
@@ -298,15 +306,17 @@ class _CustomsAddPageState extends State<CustomsAddPage>
             SizedBox(
               height: 35,
             ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: width * 0.25),
-              child: RaisedButton(
-                child: Text("Create!"),
-                textColor: Colors.white,
-                color: AppColors.blue,
-                onPressed: () {},
-              ),
-            ),
+            _sending
+                ? LinearProgressIndicator()
+                : Container(
+                    padding: EdgeInsets.symmetric(horizontal: width * 0.25),
+                    child: RaisedButton(
+                      child: Text("Create!"),
+                      textColor: Colors.white,
+                      color: AppColors.blue,
+                      onPressed: _createCustom,
+                    ),
+                  ),
             SizedBox(
               height: 45,
             ),
@@ -314,6 +324,33 @@ class _CustomsAddPageState extends State<CustomsAddPage>
         );
       },
     );
+  }
+
+  void _createCustom() async {
+    var photo = _appearance == 0 ? _galleryPhoto : _fusionPhoto;
+    this.setState(() {
+      _sending = true;
+    });
+    if (photo == null && _appearance == 1) {
+      var response = await get("https://images.alexonsager.net/pokemon/fused/" +
+          _poke2.toString() +
+          "/" +
+          _poke2.toString() +
+          "." +
+          _poke1.toString() +
+          ".png");
+      photo = response.bodyBytes;
+    }
+
+    PokemonHelper.addCustom(
+        _name,
+        photo,
+        _type1,
+        _type2,
+        (favourite) => Navigator.of(context).pop(),
+        (_) => setState(() {
+              _sending = false;
+            }));
   }
 
   int _type1;
@@ -349,6 +386,9 @@ class _CustomsAddPageState extends State<CustomsAddPage>
       iconSize: 24,
       dropdownColor: AppColors.lightGrey,
       elevation: 16,
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
       onChanged: (int newValue) {
         setState(() {
           onchange(newValue);
@@ -445,6 +485,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
               _pokemonFusionDialog(context, model, height, width),
         ).then(
           (value) {
+            FocusScope.of(context).requestFocus(new FocusNode());
             value = value ?? -1;
             log(value.toString());
             if (value != -1) onTap(value);
