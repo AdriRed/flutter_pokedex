@@ -2,14 +2,17 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:pokedex/helpers/apiHelper.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/screens/customs/widgets/customs_api_card.dart';
+import 'package:pokedex/services/account.service.dart';
 import 'package:pokedex/services/pokemon.service.dart';
 import 'package:pokedex/services/token.handler.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/poke_container.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class CustomsPage extends StatefulWidget {
   CustomsPage({Key key}) : super(key: key);
@@ -47,13 +50,18 @@ class _CustomsPageState extends State<CustomsPage>
           _loggedIn = value;
           _loading = !(value &&
               pokeapiModel.hasTypesData &&
-              sessionModel.hasCustomsData);
+              sessionModel.hasCustomsData &&
+              sessionModel.hasUserData);
         });
         Future.wait(
           [
             PokemonHelper.getMyCustom(
                 (data) => sessionModel.setCustomsData(data), (x) {
               log("Error loading customs");
+              showSnackbar(x);
+            }),
+            AccountHelper.self((data) => sessionModel.setUserData(data), (x) {
+              log("Error loading user");
               showSnackbar(x);
             }),
             pokeapiModel.initTypes(),
@@ -209,10 +217,34 @@ class _CustomsPageState extends State<CustomsPage>
                 },
                 child: Icon(Icons.arrow_back),
               ),
-              GestureDetector(
-                onTap: () {},
-                child: Icon(Icons.gradient),
-              ),
+              SessionModel.of(context).hasUserData
+                  ? GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          child: AlertDialog(
+                            content: Container(
+                              height: 250,
+                              width: 600,
+                              padding: EdgeInsets.only(left: 15),
+                              child: QrImage(
+                                data: ApiHelper.apiUrl +
+                                    "/api/custom/from/" +
+                                    SessionModel.of(context)
+                                        .userData
+                                        .id
+                                        .toString(),
+                                version: QrVersions.auto,
+                                // size: 500,
+                                gapless: true,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Icon(Icons.gradient),
+                    )
+                  : Container(),
             ],
             children: <Widget>[
               SizedBox(height: 34),

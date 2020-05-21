@@ -19,6 +19,7 @@ class AccountHelper {
           var result = json.decode(body);
 
           UserData data = UserData(
+            id: result['id'],
             token: result['token'],
             username: result['username'],
             photo: result['photo'],
@@ -139,11 +140,11 @@ class AccountHelper {
         onSuccess: (body, code) {
           var result = json.decode(body);
           UserData data = UserData(
-            token: result['token'],
-            username: result['username'],
-            photo: result['photo'],
-            email: result['email'],
-          );
+              token: result['token'],
+              username: result['username'],
+              photo: result['photo'],
+              email: result['email'],
+              id: result['id']);
 
           onSuccess?.call(data);
         },

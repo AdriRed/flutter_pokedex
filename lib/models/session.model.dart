@@ -109,12 +109,13 @@ class SessionModel extends ChangeNotifier {
 }
 
 class UserData {
+  final int id;
   final String username;
   final String email;
   final String photo;
   final String token;
 
-  UserData({this.username, this.email, this.photo, this.token});
+  UserData({this.username, this.email, this.photo, this.token, this.id = 0});
 }
 
 class CustomsData {
