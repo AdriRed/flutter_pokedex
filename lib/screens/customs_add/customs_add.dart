@@ -78,7 +78,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 30),
           child: Text(
-            "Give it some name and appearance",
+            "You're creating a Pokémon!",
             style: TextStyle(
               fontSize: 30,
               height: 0.9,
@@ -146,7 +146,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 35),
                 child: Text(
-                  "Give it some name",
+                  "It will be called...",
                   style: TextStyle(
                     fontSize: 18,
                     height: 0.5,
@@ -273,11 +273,43 @@ class _CustomsAddPageState extends State<CustomsAddPage>
                     ? CircularProgressIndicator()
                     : _pokemonFusion(value, height, width),
             SizedBox(
+              height: 35,
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 35),
+                child: Text(
+                  "and which types will be...",
+                  style: TextStyle(
+                    fontSize: 18,
+                    height: 0.5,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
               height: 15,
             ),
             _loading
                 ? LinearProgressIndicator()
                 : _pokemonTypes(value, height, width),
+            SizedBox(
+              height: 35,
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.25),
+              child: RaisedButton(
+                child: Text("Create!"),
+                textColor: Colors.white,
+                color: AppColors.blue,
+                onPressed: () {},
+              ),
+            ),
+            SizedBox(
+              height: 45,
+            ),
           ]),
         );
       },
@@ -289,19 +321,17 @@ class _CustomsAddPageState extends State<CustomsAddPage>
 
   Widget _pokemonTypes(PokeapiModel value, double height, double width) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         Container(
-          width: width * 0.4,
+          // width: width * 0.24,
           child: _pokemonTypeDropdown(value, _type1, (val) {
             _type1 = val;
           }),
         ),
-        SizedBox(
-          width: 30,
-        ),
+        SizedBox(width: 30, child: Icon(Icons.remove)),
         Container(
-          width: width * 0.4,
+          // width: width * 0.24,
           child: _pokemonTypeDropdown(value, _type2, (val) {
             _type2 = val;
           }),
@@ -315,29 +345,34 @@ class _CustomsAddPageState extends State<CustomsAddPage>
     return DropdownButton<int>(
       value: selectedValue,
       icon: Icon(Icons.dehaze),
+      // icon: Container(),
       iconSize: 24,
+      dropdownColor: AppColors.lightGrey,
       elevation: 16,
-      style: TextStyle(color: Colors.deepPurple),
       onChanged: (int newValue) {
         setState(() {
           onchange(newValue);
         });
       },
-      isExpanded: true,
       items: model.pokemonTypes.toList().map((x) => x.info).map((type) {
         return DropdownMenuItem<int>(
-            value: type.id,
-            child: Text(
-              type.names["es"],
-            )
-            // child: PokemonApiCardType(
-            //   type.names["es"],
-            //   large: true,
-            //   backcolor: AppColors.types[type.id - 1],
-            //   textColor: Colors.black,
-            //   opacity: 1,
-            // ),
-            );
+          value: type.id,
+          // child: Text(
+          //   type.names["es"],
+          // )
+          child: PokemonApiCardType(
+            type.names["es"],
+            large: true,
+            backcolor: AppColors.types[type.id - 1],
+            textColor: AppColors.types[type.id - 1].red * 0.299 +
+                        AppColors.types[type.id - 1].green * 0.587 +
+                        AppColors.types[type.id - 1].blue * 0.114 >
+                    186
+                ? AppColors.black
+                : Colors.white,
+            opacity: 1,
+          ),
+        );
       }).toList(),
     );
   }
