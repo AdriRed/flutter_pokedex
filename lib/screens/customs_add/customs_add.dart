@@ -501,7 +501,7 @@ class _CustomsAddPageState extends State<CustomsAddPage>
             FocusScope.of(context).requestFocus(new FocusNode());
             value = value ?? -1;
             log(value.toString());
-            if (value != -1) onTap(value);
+            if (value != -1) onTap(value + 1);
           },
         ),
       ),
