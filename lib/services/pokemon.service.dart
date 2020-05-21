@@ -170,4 +170,37 @@ class PokemonHelper {
 
     return ApiHelper.call(options);
   }
+
+  static Future getOthersCustom(
+      String url,
+      Function(CustomsData favourite) onSuccess,
+      Function(String body) onFailure) async {
+    ApiOptions options = ApiOptions(
+        method: ApiOptionsMethods.get,
+        url: url.split(ApiHelper.apiUrl).last,
+        headers: {'Authorization': await TokenHandler.getHeaderToken()},
+        onSuccess: (body, code) {
+          var jsonresult = json.decode(body);
+          var result = jsonresult as List<dynamic>;
+          CustomsData data = new CustomsData(
+              customs: result.length == 0
+                  ? new List()
+                  : result
+                      .map(
+                        (x) => new Custom(
+                          x["id"],
+                          x["photo"],
+                          x["name"],
+                          x["type1"],
+                          x["type2"],
+                        ),
+                      )
+                      .toList());
+
+          onSuccess?.call(data);
+        },
+        onFailure: (body, create) => {onFailure?.call(body)});
+
+    return ApiHelper.call(options);
+  }
 }
