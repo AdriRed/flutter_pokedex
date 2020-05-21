@@ -193,6 +193,12 @@ class _CustomsPageState extends State<CustomsPage>
   Widget _buildPage(BuildContext context, {Widget child}) {
     return Scaffold(
       key: _globalKey,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.of(context).pushNamed("/customs-add");
+        },
+      ),
       body: Stack(
         children: <Widget>[
           CustomPokeContainer(
@@ -204,10 +210,8 @@ class _CustomsPageState extends State<CustomsPage>
                 child: Icon(Icons.arrow_back),
               ),
               GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushNamed("/customs-add");
-                },
-                child: Icon(Icons.add),
+                onTap: () {},
+                child: Icon(Icons.gradient),
               ),
             ],
             children: <Widget>[
