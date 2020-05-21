@@ -54,8 +54,10 @@ class _FavouritesPageState extends State<FavouritesPage>
           [
             pokeapiModel.init(),
             PokemonHelper.getFavouites(
-                (data) => sessionModel.setFavouritesData(data),
-                (_) => {log("Error loading favourites")}),
+                (data) => sessionModel.setFavouritesData(data), (x) {
+              showSnackbar(x);
+              log("Error loading favourites");
+            }),
           ],
         ).then(
           (value) => setState(
@@ -75,6 +77,19 @@ class _FavouritesPageState extends State<FavouritesPage>
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => SearchBottomModal(),
+    );
+  }
+
+  GlobalKey<ScaffoldState> _globalKey = new GlobalKey();
+  void showSnackbar(String message) {
+    _globalKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        action: SnackBarAction(
+          label: "Dismiss",
+          onPressed: () => _globalKey.currentState.hideCurrentSnackBar(),
+        ),
+      ),
     );
   }
 

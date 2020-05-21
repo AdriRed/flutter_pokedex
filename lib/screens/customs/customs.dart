@@ -52,8 +52,10 @@ class _CustomsPageState extends State<CustomsPage>
         Future.wait(
           [
             PokemonHelper.getMyCustom(
-                (data) => sessionModel.setCustomsData(data),
-                (_) => {log("Error loading customs")}),
+                (data) => sessionModel.setCustomsData(data), (x) {
+              log("Error loading customs");
+              showSnackbar(x);
+            }),
             pokeapiModel.initTypes(),
           ],
         ).then(
@@ -143,7 +145,10 @@ class _CustomsPageState extends State<CustomsPage>
                       this.setState(() {
                         _loading = false;
                       });
-                    }, (body) => log(body));
+                    }, (body) {
+                      log(body);
+                      showSnackbar(body);
+                    });
                   }
                 })
               },
@@ -171,8 +176,23 @@ class _CustomsPageState extends State<CustomsPage>
     );
   }
 
+  void showSnackbar(String message) {
+    _globalKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        action: SnackBarAction(
+          label: "Dismiss",
+          onPressed: () => _globalKey.currentState.hideCurrentSnackBar(),
+        ),
+      ),
+    );
+  }
+
+  GlobalKey<ScaffoldState> _globalKey = new GlobalKey();
+
   Widget _buildPage(BuildContext context, {Widget child}) {
     return Scaffold(
+      key: _globalKey,
       body: Stack(
         children: <Widget>[
           CustomPokeContainer(

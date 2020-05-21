@@ -346,10 +346,12 @@ class _CustomsAddPageState extends State<CustomsAddPage>
     PokemonHelper.addCustom(_name, photo, _type1, _type2, (c) {
       SessionModel.of(context).addCustom(c);
       Navigator.of(context).pop();
-    },
-        (_) => setState(() {
-              _sending = false;
-            }));
+    }, (x) {
+      setState(() {
+        _sending = false;
+      });
+      showSnackbar(x);
+    });
   }
 
   int _type1;
@@ -373,6 +375,18 @@ class _CustomsAddPageState extends State<CustomsAddPage>
           }),
         ),
       ],
+    );
+  }
+
+  void showSnackbar(String message) {
+    _globalKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        action: SnackBarAction(
+          label: "Dismiss",
+          onPressed: () => _globalKey.currentState.hideCurrentSnackBar(),
+        ),
+      ),
     );
   }
 
