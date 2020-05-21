@@ -15,7 +15,7 @@ class TabData {
 
 class PokemonTabInfo extends StatelessWidget {
   final List<TabData> _tabs = [
-    TabData("About", PokemonAbout()),
+    TabData("About", PokeapiAbout()),
     TabData("Base Stats", PokemonBaseStats()),
     TabData("Evolution", PokemonEvolution()),
     TabData(

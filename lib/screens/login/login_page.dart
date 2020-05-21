@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage>
   static const EdgeInsets margins = EdgeInsets.symmetric(horizontal: 28);
   static const double _appBarHorizontalPadding = 28.0;
   static const double _appBarTopPadding = 30.0;
-  bool _creating;
+  bool _creating, _sending;
   final _formKey = GlobalKey<FormState>();
   String _user, _password, _confirmed;
 
@@ -53,6 +53,7 @@ class _LoginPageState extends State<LoginPage>
 
     _cardHeight = 0;
     _creating = false;
+    _sending = false;
     super.initState();
   }
 
@@ -162,43 +163,54 @@ class _LoginPageState extends State<LoginPage>
           SizedBox(
             height: 25,
           ),
-          OutlineButton(
-            child: Text(
-              _creating ? "Create new account" : "Log in",
-              style: TextStyle(
-                color: AppColors.blue,
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-              ),
-            ),
-            onPressed: () {
-              if (_creating)
-                _create(_user, _password, _confirmed, context);
-              else
-                _login(_user, _password, context);
-            },
-            textTheme: ButtonTextTheme.accent,
-            borderSide: BorderSide(
-              color: AppColors.blue,
-              width: 2,
-            ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 50),
+            child: _sending
+                ? LinearProgressIndicator()
+                : OutlineButton(
+                    child: Text(
+                      _creating ? "Create new account" : "Log in",
+                      style: TextStyle(
+                        color: AppColors.blue,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                    onPressed: () {
+                      if (_creating)
+                        _create(_user, _password, _confirmed, context);
+                      else
+                        _login(_user, _password, context);
+                    },
+                    textTheme: ButtonTextTheme.accent,
+                    borderSide: BorderSide(
+                      color: AppColors.blue,
+                      width: 2,
+                    ),
+                  ),
           ),
           SizedBox(height: 15),
-          _buttonCreateAccount(context),
+          if (!_sending) _buttonCreateAccount(context),
         ],
       ),
     );
   }
 
   void _login(String user, String password, BuildContext context) {
+    this.setState(() {
+      _sending = true;
+    });
     AccountHelper.login(user, password, (data) {
       // Scaffold.of(context).showSnackBar(SnackBar(
       //   content: Text("Welcome " + loggedUser + "!"),
       // ));
       SessionModel.of(context)
-          .setNewData(data)
+          .setUserData(data)
           .whenComplete(() => Navigator.of(context).popUntil((x) => x.isFirst));
     }, (reason) {
+      this.setState(() {
+        _sending = false;
+      });
       _globalKey.currentState?.showSnackBar(
         SnackBar(
           content: Text(reason),
@@ -213,14 +225,21 @@ class _LoginPageState extends State<LoginPage>
 
   void _create(
       String user, String password, String repeated, BuildContext context) {
+    this.setState(() {
+      _sending = true;
+    });
+
     AccountHelper.create(user, password, repeated, (data) {
       // Scaffold.of(context).showSnackBar(SnackBar(
       //   content: Text("Welcome " + loggedUser + "!"),
       // ));
       SessionModel.of(context)
-          .setNewData(data)
+          .setUserData(data)
           .whenComplete(() => Navigator.of(context).popUntil((x) => x.isFirst));
     }, (reason) {
+      this.setState(() {
+        _sending = false;
+      });
       _globalKey.currentState.showSnackBar(
         SnackBar(
           content: Text(reason),

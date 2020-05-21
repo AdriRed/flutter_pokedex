@@ -80,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-              model.data.photo == null
+              model.userData.photo == null
                   ? Container(
                       height: 128,
                       width: 128,
@@ -90,7 +90,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       decoration: BoxDecoration(color: Colors.grey),
                     )
                   : Image.memory(
-                      new Uint8List.fromList(base64Decode(model.data.photo)),
+                      new Uint8List.fromList(
+                          base64Decode(model.userData.photo)),
                       height: 128,
                     )
             ],
@@ -112,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               Text(
-                model.data.email,
+                model.userData.email,
                 style: TextStyle(
                   fontSize: 18,
                   height: 0.5,
@@ -138,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               Text(
-                model.data.username,
+                model.userData.username,
                 style: TextStyle(
                   fontSize: 18,
                   height: 0.5,
@@ -162,11 +163,11 @@ class _ProfilePageState extends State<ProfilePage> {
             onPressed: () async {
               setState(() {
                 _editing = true;
-                _photo = model.data.photo == null
+                _photo = model.userData.photo == null
                     ? null
-                    : base64Decode(model.data.photo);
-                _email = model.data.email;
-                _username = model.data.username;
+                    : base64Decode(model.userData.photo);
+                _email = model.userData.email;
+                _username = model.userData.username;
               });
             },
             textTheme: ButtonTextTheme.accent,
@@ -364,10 +365,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPressed: () async {
                       var image = await ImagePicker.pickImage(
                           source: ImageSource.gallery);
-
-                      setState(() {
-                        _photo = image.readAsBytesSync();
-                      });
+                      if (image != null)
+                        setState(() {
+                          _photo = image.readAsBytesSync();
+                        });
                     },
                     textTheme: ButtonTextTheme.accent,
                     borderSide: BorderSide(
@@ -490,7 +491,7 @@ class _ProfilePageState extends State<ProfilePage> {
     AccountHelper.edit(
       newU,
       (data) {
-        SessionModel.of(this.context).setNewData(data);
+        SessionModel.of(this.context).setUserData(data);
         this.setState(() {
           _editing = false;
         });
@@ -503,9 +504,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _profile(BuildContext context) {
     return Consumer<SessionModel>(
       builder: (context, model, child) {
-        if (!model.hasData) {
+        if (!model.hasUserData) {
           AccountHelper.self(
-              (data) => model.setNewData(data), (r) => log(r.toString()));
+              (data) => model.setUserData(data), (r) => log(r.toString()));
           return Center(
             child: CircularProgressIndicator(),
           );

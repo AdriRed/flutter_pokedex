@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
-import 'package:pokedex/models/pokemon.dart';
 import 'package:pokedex/models/session.model.dart';
+import 'package:pokedex/screens/customs/customs.dart';
+import 'package:pokedex/screens/customs_add/customs_add.dart';
+import 'package:pokedex/screens/favourites/favourites.dart';
+import 'package:pokedex/screens/favourites_info/favourites_info.dart';
 import 'package:pokedex/screens/pokeapi_info/pokeapi_info.dart';
 import 'package:pokedex/screens/pokedex_api/pokedex_api.dart';
 import 'package:pokedex/screens/profile/profile_page.dart';
@@ -11,14 +14,11 @@ import 'package:provider/provider.dart';
 
 import 'configs/AppColors.dart';
 import 'screens/home/home.dart';
-import 'screens/pokedex/pokedex.dart';
-import 'screens/pokemon_info/pokemon_info.dart';
 import 'widgets/fade_page_route.dart';
 
 void main() => runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => PokemonModel()),
           ChangeNotifierProvider(
             create: (context) => PokeapiModel(),
           ),
@@ -37,14 +37,8 @@ class MyApp extends StatelessWidget {
       case "/":
         return FadeRoute(page: Home());
 
-      case '/pokedex':
-        return FadeRoute(page: Pokedex());
-
       case '/pokedex-api':
         return FadeRoute(page: PokedexApi());
-
-      case '/pokemon-info':
-        return FadeRoute(page: PokemonInfo());
 
       case '/pokeapi-info':
         return FadeRoute(page: PokeapiInfo());
@@ -54,6 +48,18 @@ class MyApp extends StatelessWidget {
 
       case '/profile':
         return FadeRoute(page: ProfilePage());
+
+      case '/favourites':
+        return FadeRoute(page: FavouritesPage());
+
+      case '/favourites-info':
+        return FadeRoute(page: FavouritesInfo());
+
+      case '/customs':
+        return FadeRoute(page: CustomsPage());
+
+      case '/customs-add':
+        return FadeRoute(page: CustomsAddPage());
 
       default:
         return null;

@@ -76,18 +76,18 @@ class _HomeState extends State<Home> {
                         onTap: () {
                           TokenHandler.removeToken().whenComplete(() {
                             SessionModel.of(context)
-                                .removeData()
+                                .cleanEverything()
                                 .whenComplete(() {
-                              _globalKey.currentState.showSnackBar(
-                                SnackBar(
-                                  content: Text("Good bye!"),
-                                  action: SnackBarAction(
-                                    label: 'Bye!',
-                                    onPressed: () => _globalKey.currentState
-                                        .hideCurrentSnackBar(),
-                                  ),
-                                ),
-                              );
+                              // _globalKey.currentState.showSnackBar(
+                              //   SnackBar(
+                              //     content: Text("Good bye!"),
+                              //     action: SnackBarAction(
+                              //       label: 'Bye!',
+                              //       onPressed: () => _globalKey.currentState
+                              //           .hideCurrentSnackBar(),
+                              //     ),
+                              //   ),
+                              // );
                             });
                           });
                         },
@@ -122,7 +122,7 @@ class _HomeState extends State<Home> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 28),
               child: Text(
-                "What Pokemon\nare you looking for?",
+                "What pokémon are you\nlooking for, trainer? ",
                 style: TextStyle(
                   fontSize: 30,
                   height: 0.9,
@@ -131,7 +131,7 @@ class _HomeState extends State<Home> {
               ),
             ),
             SizedBox(height: 40),
-            SearchBar(),
+            // SearchBar(),
             SizedBox(height: 42),
             CategoryList(),
           ],
