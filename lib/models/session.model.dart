@@ -109,12 +109,13 @@ class SessionModel extends ChangeNotifier {
 }
 
 class UserData {
+  final int id;
   final String username;
   final String email;
   final String photo;
   final String token;
 
-  UserData({this.username, this.email, this.photo, this.token});
+  UserData({this.username, this.email, this.photo, this.token, this.id = 0});
 }
 
 class CustomsData {
@@ -133,9 +134,11 @@ class Custom {
   final int id;
   final String photo;
   final String name;
+  final String owner;
   final int type1;
   final int type2;
-  const Custom(this.id, this.photo, this.name, this.type1, this.type2);
+  const Custom(this.id, this.photo, this.name, this.type1, this.type2,
+      {this.owner});
 }
 
 class Favourite {

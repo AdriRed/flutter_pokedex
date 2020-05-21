@@ -2,14 +2,18 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pokedex/helpers/apiHelper.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/screens/customs/widgets/customs_api_card.dart';
+import 'package:pokedex/services/account.service.dart';
 import 'package:pokedex/services/pokemon.service.dart';
 import 'package:pokedex/services/token.handler.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
-import 'package:pokedex/widgets/poke_container.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class CustomsPage extends StatefulWidget {
   CustomsPage({Key key}) : super(key: key);
@@ -47,13 +51,18 @@ class _CustomsPageState extends State<CustomsPage>
           _loggedIn = value;
           _loading = !(value &&
               pokeapiModel.hasTypesData &&
-              sessionModel.hasCustomsData);
+              sessionModel.hasCustomsData &&
+              sessionModel.hasUserData);
         });
         Future.wait(
           [
             PokemonHelper.getMyCustom(
                 (data) => sessionModel.setCustomsData(data), (x) {
               log("Error loading customs");
+              showSnackbar(x);
+            }),
+            AccountHelper.self((data) => sessionModel.setUserData(data), (x) {
+              log("Error loading user");
               showSnackbar(x);
             }),
             pokeapiModel.initTypes(),
@@ -191,8 +200,99 @@ class _CustomsPageState extends State<CustomsPage>
   GlobalKey<ScaffoldState> _globalKey = new GlobalKey();
 
   Widget _buildPage(BuildContext context, {Widget child}) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       key: _globalKey,
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          FloatingActionButton(
+              child: Icon(Icons.center_focus_strong),
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              heroTag: "fab-up",
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    child: AlertDialog(
+                      content: Container(
+                        width: screenWidth * 0.95,
+                        height: screenHeight * 0.95,
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              width: screenWidth * 0.95,
+                              height: screenHeight * 0.80,
+                              child: QRView(
+                                key: qrKey,
+                                onQRViewCreated: (x) => _onQRViewCreated(
+                                    x, screenHeight, screenWidth),
+                              ),
+                            ),
+                            RaisedButton.icon(
+                              onPressed: () => controller.toggleFlash(),
+                              icon: Icon(Icons.flash_on),
+                              label: Text("Toggle flash"),
+                            )
+                          ],
+                        ),
+                      ),
+                    ));
+                // try {
+                //   log("scanning");
+
+                //   log(barcode);
+                //   PokemonHelper.getOthersCustom(barcode, (result) {
+                // showDialog(
+                //     context: context,
+                //     child: AlertDialog(
+                //       content: Container(
+                //         height: screenHeight * 0.9,
+                //         width: screenWidth * 0.85,
+                //         child: GridView.builder(
+                //             padding: EdgeInsets.only(
+                //                 left: 0, right: 0, bottom: 58),
+                //             physics: BouncingScrollPhysics(),
+                //             gridDelegate:
+                //                 SliverGridDelegateWithFixedCrossAxisCount(
+                //               crossAxisCount: 2,
+                //               childAspectRatio: 1.4,
+                //               crossAxisSpacing: 10,
+                //               mainAxisSpacing: 10,
+                //             ),
+                //             itemCount: result.customs.length,
+                //             itemBuilder: (context, index) {
+                //               var selected = result.customs[index];
+                //               var types =
+                //                   PokeapiModel.of(context).pokemonTypes;
+                //               return CustomsApiCard(
+                //                 index: selected.id,
+                //                 name: selected.name,
+                //                 image: base64Decode(selected.photo),
+                //                 type1: types
+                //                     .firstWhere((element) =>
+                //                         element.info.id == selected.type1)
+                //                     .info,
+                //                 type2: types
+                //                     .firstWhere((element) =>
+                //                         element.info.id == selected.type2)
+                //                     .info,
+                //               );
+              }),
+          SizedBox(
+            height: 10,
+          ),
+          FloatingActionButton(
+            heroTag: "fab-down",
+            child: Icon(Icons.add),
+            onPressed: () {
+              Navigator.of(context).pushNamed("/customs-add");
+            },
+          ),
+        ],
+      ),
       body: Stack(
         children: <Widget>[
           CustomPokeContainer(
@@ -203,12 +303,34 @@ class _CustomsPageState extends State<CustomsPage>
                 },
                 child: Icon(Icons.arrow_back),
               ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushNamed("/customs-add");
-                },
-                child: Icon(Icons.add),
-              ),
+              SessionModel.of(context).hasUserData
+                  ? GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          child: AlertDialog(
+                            content: Container(
+                              height: 250,
+                              width: 600,
+                              padding: EdgeInsets.only(left: 15),
+                              child: QrImage(
+                                data: ApiHelper.apiUrl +
+                                    "/api/pokemon/custom/from/" +
+                                    SessionModel.of(context)
+                                        .userData
+                                        .id
+                                        .toString(),
+                                version: QrVersions.auto,
+                                // size: 500,
+                                gapless: true,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Icon(Icons.gradient),
+                    )
+                  : Container(),
             ],
             children: <Widget>[
               SizedBox(height: 34),
@@ -228,6 +350,82 @@ class _CustomsPageState extends State<CustomsPage>
         ],
       ),
     );
+  }
+
+  bool readed;
+  bool subscribed = false;
+
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  QRViewController controller;
+  void _onQRViewCreated(
+      QRViewController controller, double screenHeight, double screenWidth) {
+    this.controller = controller;
+    this.setState(() {
+      readed = false;
+    });
+    controller.scannedDataStream.listen(_onReadQr);
+    if (!subscribed) {
+      this.setState(() {
+        subscribed = true;
+      });
+    }
+  }
+
+  void _onReadQr(String barcode) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (readed) return;
+    this.setState(() {
+      readed = true;
+    });
+    Navigator.of(context).pop();
+    log(barcode);
+    PokemonHelper.getOthersCustom(barcode, (result) {
+      if (result.customs.length == 0) {
+        showSnackbar("This user dont have any custom pokemon...");
+      } else
+        showDialog(
+            context: context,
+            child: AlertDialog(
+              title: Text("Custom pokemon of " + result.customs[0].owner),
+              content: Container(
+                height: screenHeight * 0.9,
+                width: screenWidth * 0.85,
+                child: GridView.builder(
+                    padding: EdgeInsets.only(left: 0, right: 0, bottom: 58),
+                    physics: BouncingScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 1,
+                      childAspectRatio: 1.4,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemCount: result.customs.length,
+                    itemBuilder: (context, index) {
+                      var selected = result.customs[index];
+                      var types = PokeapiModel.of(context).pokemonTypes;
+                      return CustomsApiCard(
+                          index: selected.id,
+                          name: selected.name,
+                          image: base64Decode(selected.photo),
+                          type1: types
+                              .firstWhere((element) =>
+                                  element.info.id == selected.type1)
+                              .info,
+                          type2: types
+                              .firstWhere((element) =>
+                                  element.info.id == selected.type2)
+                              .info);
+                    }),
+              ),
+            ));
+    }, (_) => null);
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 
   @override
