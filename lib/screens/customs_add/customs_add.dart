@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pokedex/configs/AppColors.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
+import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/services/pokemon.service.dart';
 import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/pokemon_api_card.dart';
@@ -342,12 +343,10 @@ class _CustomsAddPageState extends State<CustomsAddPage>
       photo = response.bodyBytes;
     }
 
-    PokemonHelper.addCustom(
-        _name,
-        photo,
-        _type1,
-        _type2,
-        (favourite) => Navigator.of(context).pop(),
+    PokemonHelper.addCustom(_name, photo, _type1, _type2, (c) {
+      SessionModel.of(context).addCustom(c);
+      Navigator.of(context).pop();
+    },
         (_) => setState(() {
               _sending = false;
             }));

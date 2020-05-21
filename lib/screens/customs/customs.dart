@@ -7,6 +7,7 @@ import 'package:pokedex/models/session.model.dart';
 import 'package:pokedex/screens/customs/widgets/customs_api_card.dart';
 import 'package:pokedex/services/pokemon.service.dart';
 import 'package:pokedex/services/token.handler.dart';
+import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/poke_container.dart';
 import 'package:provider/provider.dart';
 
@@ -129,14 +130,27 @@ class _CustomsPageState extends State<CustomsPage>
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          PokeContainer(
-            appBar: true,
+          CustomPokeContainer(
+            appBar: <Widget>[
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Icon(Icons.arrow_back),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushNamed("/customs-add");
+                },
+                child: Icon(Icons.add),
+              ),
+            ],
             children: <Widget>[
               SizedBox(height: 34),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 26.0),
                 child: Text(
-                  "Favourites",
+                  "Your custom pokemon",
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
               ),
