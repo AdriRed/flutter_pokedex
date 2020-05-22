@@ -3,8 +3,16 @@ import 'package:flutter/cupertino.dart';
 import '../../home/widgets/search_bar.dart';
 
 class SearchBottomModal extends StatelessWidget {
+  SearchBottomModal({Function(String s) onSubmit}) {
+    this.onSubmit = onSubmit;
+  }
+
+  Function(String s) onSubmit;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 14, horizontal: 26),
       decoration: BoxDecoration(
@@ -26,7 +34,10 @@ class SearchBottomModal extends StatelessWidget {
             ),
           ),
           SizedBox(height: 18),
-          SearchBar(margin: EdgeInsets.all(0)),
+          SearchBar(
+            margin: EdgeInsets.all(0),
+            onSubmit: this.onSubmit,
+          ),
           SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 18),
         ],
       ),
