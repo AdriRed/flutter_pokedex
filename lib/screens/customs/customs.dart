@@ -173,10 +173,6 @@ class _CustomsPageState extends State<CustomsPage>
                     .firstWhere(
                         (element) => element.info.id == list[index].type2)
                     .info,
-                // onPress: () {
-                //   sessionModel.setFavouritesIndex(index);
-                //   Navigator.of(context).pushNamed("/favourites-info");
-                // },
               ),
             ),
           ),
@@ -199,100 +195,62 @@ class _CustomsPageState extends State<CustomsPage>
 
   GlobalKey<ScaffoldState> _globalKey = new GlobalKey();
 
-  Widget _buildPage(BuildContext context, {Widget child}) {
+  Widget _buildPage(BuildContext context, {Widget child, bool action}) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       key: _globalKey,
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          FloatingActionButton(
-              child: Icon(Icons.center_focus_strong),
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              heroTag: "fab-up",
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    child: AlertDialog(
-                      content: Container(
-                        width: screenWidth * 0.95,
-                        height: screenHeight * 0.95,
-                        child: Column(
-                          children: <Widget>[
-                            Container(
+      floatingActionButton: !action
+          ? null
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                FloatingActionButton(
+                    child: Icon(Icons.center_focus_strong),
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    heroTag: "fab-up",
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          child: AlertDialog(
+                            content: Container(
                               width: screenWidth * 0.95,
-                              height: screenHeight * 0.80,
-                              child: QRView(
-                                key: qrKey,
-                                onQRViewCreated: (x) => _onQRViewCreated(
-                                    x, screenHeight, screenWidth),
+                              height: screenHeight * 0.95,
+                              child: Column(
+                                children: <Widget>[
+                                  Container(
+                                    width: screenWidth * 0.95,
+                                    height: screenHeight * 0.80,
+                                    child: QRView(
+                                      key: qrKey,
+                                      onQRViewCreated: (x) => _onQRViewCreated(
+                                          x, screenHeight, screenWidth),
+                                    ),
+                                  ),
+                                  RaisedButton.icon(
+                                    onPressed: () => controller.toggleFlash(),
+                                    icon: Icon(Icons.flash_on),
+                                    label: Text("Toggle flash"),
+                                  )
+                                ],
                               ),
                             ),
-                            RaisedButton.icon(
-                              onPressed: () => controller.toggleFlash(),
-                              icon: Icon(Icons.flash_on),
-                              label: Text("Toggle flash"),
-                            )
-                          ],
-                        ),
-                      ),
-                    ));
-                // try {
-                //   log("scanning");
-
-                //   log(barcode);
-                //   PokemonHelper.getOthersCustom(barcode, (result) {
-                // showDialog(
-                //     context: context,
-                //     child: AlertDialog(
-                //       content: Container(
-                //         height: screenHeight * 0.9,
-                //         width: screenWidth * 0.85,
-                //         child: GridView.builder(
-                //             padding: EdgeInsets.only(
-                //                 left: 0, right: 0, bottom: 58),
-                //             physics: BouncingScrollPhysics(),
-                //             gridDelegate:
-                //                 SliverGridDelegateWithFixedCrossAxisCount(
-                //               crossAxisCount: 2,
-                //               childAspectRatio: 1.4,
-                //               crossAxisSpacing: 10,
-                //               mainAxisSpacing: 10,
-                //             ),
-                //             itemCount: result.customs.length,
-                //             itemBuilder: (context, index) {
-                //               var selected = result.customs[index];
-                //               var types =
-                //                   PokeapiModel.of(context).pokemonTypes;
-                //               return CustomsApiCard(
-                //                 index: selected.id,
-                //                 name: selected.name,
-                //                 image: base64Decode(selected.photo),
-                //                 type1: types
-                //                     .firstWhere((element) =>
-                //                         element.info.id == selected.type1)
-                //                     .info,
-                //                 type2: types
-                //                     .firstWhere((element) =>
-                //                         element.info.id == selected.type2)
-                //                     .info,
-                //               );
-              }),
-          SizedBox(
-            height: 10,
-          ),
-          FloatingActionButton(
-            heroTag: "fab-down",
-            child: Icon(Icons.add),
-            onPressed: () {
-              Navigator.of(context).pushNamed("/customs-add");
-            },
-          ),
-        ],
-      ),
+                          ));
+                    }),
+                SizedBox(
+                  height: 10,
+                ),
+                FloatingActionButton(
+                  heroTag: "fab-down",
+                  child: Icon(Icons.add),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed("/customs-add");
+                  },
+                ),
+              ],
+            ),
       body: Stack(
         children: <Widget>[
           CustomPokeContainer(
@@ -433,6 +391,7 @@ class _CustomsPageState extends State<CustomsPage>
     if (this._loading ?? false) {
       return _buildPage(
         context,
+        action: false,
         child: Expanded(
           child: Center(
             child: CircularProgressIndicator(),
@@ -441,6 +400,10 @@ class _CustomsPageState extends State<CustomsPage>
       );
     }
 
-    return _buildPage(context, child: _buildList(context));
+    return _buildPage(
+      context,
+      child: _buildList(context),
+      action: true,
+    );
   }
 }

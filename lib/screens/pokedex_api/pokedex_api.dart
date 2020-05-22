@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pokedex/models/pokeapi_model.dart';
 import 'package:pokedex/screens/pokedex_api/widgets/generation_modal.dart';
 import 'package:pokedex/screens/pokedex_api/widgets/search_modal.dart';
+import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/fab.dart';
 import 'package:pokedex/widgets/poke_container.dart';
 import 'package:pokedex/widgets/pokemon_api_card.dart';
@@ -47,10 +48,55 @@ class _PokedexApiState extends State<PokedexApi>
   }
 
   void _showSearchModal() {
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => SearchBottomModal(),
+      builder: (context) => SearchBottomModal(
+        onSubmit: (search) {
+          log(search);
+          if (search.trim() == "") return;
+          Navigator.of(context).pop();
+
+          var model = PokeapiModel.of(context)
+              .pokeIndex
+              .entries
+              .where((x) => x.name.contains(search.trim()))
+              .toList();
+
+          showDialog(
+              context: context,
+              child: AlertDialog(
+                title: Text("Results of " + search),
+                scrollable: true,
+                contentPadding: EdgeInsets.all(10),
+                content: Container(
+                  height: height * 0.8,
+                  width: width * 0.85,
+                  child: GridView.builder(
+                    padding: EdgeInsets.only(left: 0, right: 0, bottom: 58),
+                    physics: BouncingScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.4,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemCount: model.length,
+                    itemBuilder: (context, index) => PokemonApiCard(
+                      model[index].species,
+                      index: index,
+                      onPress: () {
+                        // Navigator.of(context).pop(index);
+                      },
+                    ),
+                  ),
+                ),
+              ));
+        },
+      ),
     );
   }
 
@@ -113,21 +159,7 @@ class _PokedexApiState extends State<PokedexApi>
           Icons.favorite,
           onPress: () {
             _animationController.reverse();
-          },
-        ),
-        FabItem(
-          "All Type",
-          Icons.filter_vintage,
-          onPress: () {
-            _animationController.reverse();
-          },
-        ),
-        FabItem(
-          "All Gen",
-          Icons.flash_on,
-          onPress: () {
-            _animationController.reverse();
-            _showGenerationModal();
+            Navigator.of(context).popAndPushNamed("/favourites");
           },
         ),
         FabItem(
@@ -146,12 +178,19 @@ class _PokedexApiState extends State<PokedexApi>
     );
   }
 
-  Widget _buildPage(BuildContext context, {Widget child}) {
+  Widget _buildPage(BuildContext context, {Widget child, bool action}) {
     return Scaffold(
         body: Stack(
           children: <Widget>[
-            PokeContainer(
-              appBar: true,
+            CustomPokeContainer(
+              appBar: [
+                GestureDetector(
+                  child: Icon(Icons.arrow_back),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
               children: <Widget>[
                 SizedBox(height: 34),
                 Padding(
@@ -169,22 +208,25 @@ class _PokedexApiState extends State<PokedexApi>
             _buildOverlayBackground(),
           ],
         ),
-        floatingActionButton: _buildActionButtons(context));
+        floatingActionButton: action ? _buildActionButtons(context) : null);
   }
 
   @override
   Widget build(BuildContext context) {
     if (this._loading) {
-      return _buildPage(
-        context,
-        child: Expanded(
-          child: Center(
-            child: CircularProgressIndicator(),
+      return _buildPage(context,
+          child: Expanded(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
           ),
-        ),
-      );
+          action: false);
     }
 
-    return _buildPage(context, child: _buildList(context));
+    return _buildPage(
+      context,
+      child: _buildList(context),
+      action: true,
+    );
   }
 }
