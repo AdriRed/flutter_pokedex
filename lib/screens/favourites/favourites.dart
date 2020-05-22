@@ -7,6 +7,7 @@ import 'package:pokedex/screens/pokedex_api/widgets/generation_modal.dart';
 import 'package:pokedex/screens/pokedex_api/widgets/search_modal.dart';
 import 'package:pokedex/services/pokemon.service.dart';
 import 'package:pokedex/services/token.handler.dart';
+import 'package:pokedex/widgets/custom_poke_container.dart';
 import 'package:pokedex/widgets/fab.dart';
 import 'package:pokedex/widgets/poke_container.dart';
 import 'package:pokedex/widgets/pokemon_api_card.dart';
@@ -156,71 +157,37 @@ class _FavouritesPageState extends State<FavouritesPage>
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
-    return ExpandedAnimationFab(
-      items: [
-        FabItem(
-          "Favourite Pokemon",
-          Icons.favorite,
-          onPress: () {
-            _animationController.reverse();
-          },
-        ),
-        FabItem(
-          "All Type",
-          Icons.filter_vintage,
-          onPress: () {
-            _animationController.reverse();
-          },
-        ),
-        FabItem(
-          "All Gen",
-          Icons.flash_on,
-          onPress: () {
-            _animationController.reverse();
-            _showGenerationModal();
-          },
-        ),
-        FabItem(
-          "Search",
-          Icons.search,
-          onPress: () {
-            _animationController.reverse();
-            _showSearchModal();
-          },
-        ),
-      ],
-      animation: _animation,
-      onPress: _animationController.isCompleted
-          ? _animationController.reverse
-          : _animationController.forward,
-    );
-  }
-
   Widget _buildPage(BuildContext context, {Widget child}) {
     return Scaffold(
-        body: Stack(
-          children: <Widget>[
-            PokeContainer(
-              appBar: true,
-              children: <Widget>[
-                SizedBox(height: 34),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 26.0),
-                  child: Text(
-                    "Favourites",
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                  ),
+      body: Stack(
+        children: <Widget>[
+          CustomPokeContainer(
+            appBar: [
+              GestureDetector(
+                child: Icon(Icons.arrow_back),
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+            children: <Widget>[
+              SizedBox(height: 34),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 26.0),
+                child: Text(
+                  "Favourites",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 32),
-                // list here
-                child
-              ],
-            ),
-            _buildOverlayBackground(),
-          ],
-        ),
-        floatingActionButton: _buildActionButtons(context));
+              ),
+              SizedBox(height: 32),
+              // list here
+              child
+            ],
+          ),
+          _buildOverlayBackground(),
+        ],
+      ),
+    );
   }
 
   @override

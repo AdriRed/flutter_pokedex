@@ -1,14 +1,22 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../../../configs/AppColors.dart';
 
 class SearchBar extends StatelessWidget {
-  const SearchBar({
+  SearchBar({
     Key key,
-    this.margin = const EdgeInsets.symmetric(horizontal: 28),
-  }) : super(key: key);
+    EdgeInsets margin = const EdgeInsets.symmetric(horizontal: 28),
+    Function(String find) onSubmit,
+  }) : super(key: key) {
+    this.onSubmit = onSubmit;
+    this.margin = margin;
+  }
 
-  final EdgeInsets margin;
+  EdgeInsets margin;
+  Function(String find) onSubmit;
+  String val = "";
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +35,13 @@ class SearchBar extends StatelessWidget {
           SizedBox(width: 13),
           Expanded(
             child: TextFormField(
+              // onChanged: (x) {
+              //   log(x);
+              //   val = x;
+              // },
+              onFieldSubmitted: (x) {
+                onSubmit(x);
+              },
               decoration: InputDecoration(
                 hintText: "Search Pokemon, Move, Ability etc",
                 hintStyle: TextStyle(
